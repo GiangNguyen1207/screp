@@ -15,7 +15,7 @@ class CalendarUtil {
             calendar.set(Calendar.MONTH, dateList[1].toInt() - 1);
             calendar.set(Calendar.YEAR, dateList[0].toInt());
         }
-        
+
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);

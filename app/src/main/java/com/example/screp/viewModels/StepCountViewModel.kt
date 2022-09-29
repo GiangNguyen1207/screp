@@ -1,4 +1,4 @@
-package com.example.screp.views.exampleScreen
+package com.example.screp.viewModels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
