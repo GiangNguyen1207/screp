@@ -12,14 +12,20 @@ private val DarkColorPalette = darkColors(
     primary = Primary,
     primaryVariant = LinearBackgroundLight,
     secondary = Secondary,
-    background = Background
+    background = Background,
+    onPrimary = NavBarIcon,
+    onSecondary = NavBarChosenIcon
+
+
 )
 
 private val LightColorPalette = lightColors(
     primary = Primary,
     primaryVariant = LinearBackgroundLight,
     secondary = Secondary,
-    background = Background
+    background = Background,
+    onPrimary = NavBarIcon,
+    onSecondary = NavBarChosenIcon
 
     /* Other default colors to override
     background = Color.White,
