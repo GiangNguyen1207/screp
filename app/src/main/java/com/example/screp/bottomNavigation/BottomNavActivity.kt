@@ -1,4 +1,4 @@
-package com.example.screp.bottonNavigation
+package com.example.screp.bottomNavigation
 
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -8,21 +8,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.screp.MainActivity
-import com.example.screp.screens.MapViewScreen
-import com.example.screp.screens.PhotosScreen
-import com.example.screp.screens.RecordStepCountScreen
-import com.example.screp.screens.WeatherScreen
-import com.example.screp.R
-import com.example.screp.viewModels.StepCountViewModel
 
 
 @Composable
@@ -34,7 +23,7 @@ fun BottomNavigation(navController: NavController) {
         BottomNavItem.Photos,
     )
     androidx.compose.material.BottomNavigation(
-        backgroundColor = MaterialTheme.colors.primaryVariant,
+        backgroundColor = MaterialTheme.colors.secondary,
         contentColor = Color.Black
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -48,8 +37,8 @@ fun BottomNavigation(navController: NavController) {
                         fontSize = 9.sp
                     )
                 },
-                selectedContentColor = MaterialTheme.colors.onPrimary,
-                unselectedContentColor = MaterialTheme.colors.onSecondary,
+                selectedContentColor = MaterialTheme.colors.onSecondary,
+                unselectedContentColor = MaterialTheme.colors.onPrimary,
                 alwaysShowLabel = true,
                 selected = currentRoute == item.screen_route,
                 onClick = {

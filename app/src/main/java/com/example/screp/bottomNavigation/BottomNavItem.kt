@@ -1,4 +1,4 @@
-package com.example.screp.bottonNavigation
+package com.example.screp.bottomNavigation
 
 import com.example.screp.R
 
