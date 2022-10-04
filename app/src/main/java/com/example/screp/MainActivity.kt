@@ -1,6 +1,10 @@
 package com.example.screp
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.hardware.SensorEventListener
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -10,6 +14,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.screp.bottomNavigation.BottomNavigation
 import com.example.screp.bottomNavigation.NavigationGraph
@@ -25,6 +30,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if(ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
+            //ask for permission
+            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1);
+        }
 
         stepCountViewModel = StepCountViewModel(application)
         weatherViewModel = WeatherViewModel()
