@@ -71,12 +71,14 @@ class MainActivity : ComponentActivity() {
                             NavigationGraph(
                                 navController = navController,
                                 stepCountViewModel = stepCountViewModel,
-                                weatherViewModel
+                                weatherViewModel = weatherViewModel,
+                                photoAndMapViewModel = photoAndMapViewModel,
+                                imgPath = imgPath,
+                                fusedLocationProviderClient = fusedLocationProviderClient
                             )
                         }
-                    ) {
 
-                        NavigationGraph(navController = navController, stepCountViewModel = stepCountViewModel, photoAndMapViewModel = photoAndMapViewModel, imgPath = imgPath, fusedLocationProviderClient = fusedLocationProviderClient)
+
                     }
                 }
             }

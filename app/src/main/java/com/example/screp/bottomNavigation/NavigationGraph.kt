@@ -14,7 +14,6 @@ import com.example.screp.viewModels.StepCountViewModel
 import com.example.screp.viewModels.WeatherViewModel
 import com.example.screp.screens.*
 import com.example.screp.viewModels.PhotoAndMapViewModel
-import com.example.screp.viewModels.StepCountViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import java.io.File
 
@@ -23,7 +22,7 @@ import java.io.File
 fun NavigationGraph(
     navController: NavHostController,
     stepCountViewModel: StepCountViewModel,
-    weatherViewModel: WeatherViewModel
+    weatherViewModel: WeatherViewModel,
     photoAndMapViewModel: PhotoAndMapViewModel,
     imgPath: File?,
     fusedLocationProviderClient: FusedLocationProviderClient
