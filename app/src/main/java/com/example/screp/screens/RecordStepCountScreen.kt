@@ -23,45 +23,49 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.*
 import com.example.screp.helpers.CalendarUtil
+import com.example.screp.sensorService.SensorData
+import com.example.screp.sensorService.SensorDataManager
 import com.example.screp.viewModels.StepCountViewModel
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import java.util.*
 
 
 @Composable
 fun RecordStepCountScreen(stepCountViewModel: StepCountViewModel) {
     val context = LocalContext.current
-    val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-    val stepCounterSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+    val scope = rememberCoroutineScope()
+
+    var data by remember {
+        mutableStateOf<SensorData?>(null)
+    }
+    val dataManager = SensorDataManager(context)
+//    DisposableEffect(Unit) {
+//        val dataManager = SensorDataManager(context)
+//        dataManager.init()
+//
+//        val job = scope.launch {
+//            dataManager.data
+//                .receiveAsFlow()
+//                .onEach { data = it }
+//                .collect()
+//        }
+//
+//        onDispose {
+//            dataManager.cancel()
+//            job.cancel()
+//        }
+//    }
 
     var sensorStatusOn by remember {mutableStateOf(false)}
 
-    // initiate sensor event listener
-    val stepCountSensorEventListener = object : SensorEventListener {
-        override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-            Log.d("SENSOR_LOG", "onAccuracyChanged ${p0?.name}: $p1")
-        }
-
-        override fun onSensorChanged(p0: SensorEvent?) {
-            p0 ?: return
-            if (p0.sensor == stepCounterSensor){
-                Log.d("SENSOR_LOG", "onSensorChanged ${p0?.values}:")
-            }
-        }
-    }
-
-
-    //val startTime = 1664236800000 //beginning of day (27.09)
-    //val endTime = 1664323199059 //end of day (27.09)
     val startTime = CalendarUtil().getCurrentDateStart("2020-04-30")
     val endTime = CalendarUtil().getCurrentDateEnd(null)
     println(Date(startTime))
     println(Date(endTime))
 
     val stepCounts = stepCountViewModel.getStepCounts(startTime, endTime).observeAsState(listOf())
-    Log.d("SENSOR_LOG", "stepCountSensor ${stepCounterSensor.toString()}")
-    Log.d("SENSOR_LOG", "sensorEventListener ${stepCountSensorEventListener.toString()}")
-
-    Log.d("SENSOR_LOG", "Sensor is on ${sensorStatusOn}")
 
     Button(
         onClick = {
@@ -69,16 +73,9 @@ fun RecordStepCountScreen(stepCountViewModel: StepCountViewModel) {
             Log.d("SENSOR_LOG", "Clicked. Sensor is on ${sensorStatusOn}")
 
             if (sensorStatusOn){
-
-                stepCounterSensor?.also {
-                    sensorManager.registerListener (
-                        stepCountSensorEventListener,
-                        stepCounterSensor,
-                        SensorManager.SENSOR_DELAY_NORMAL //specifying sensor manager as delay normal
-                    )
-                }
+                dataManager.init()
             } else {
-                sensorManager.unregisterListener(stepCountSensorEventListener)
+                dataManager.cancel()
             }
         }
     ){
