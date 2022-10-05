@@ -26,9 +26,7 @@ class SensorDataManager (context: Context): SensorEventListener {
 
     val data: Channel<SensorData> = Channel(Channel.UNLIMITED)
 
-    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-
-    }
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {}
 
     override fun onSensorChanged(p0: SensorEvent?) {
         if (p0?.sensor?.type == Sensor.TYPE_STEP_COUNTER){
@@ -39,7 +37,9 @@ class SensorDataManager (context: Context): SensorEventListener {
 
     fun cancel(){
         Log.d("SensorDataManager", "cancel")
+        stepCounts = FloatArray(1)
         sensorManager.unregisterListener(this)
+
     }
 
 }
