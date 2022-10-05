@@ -25,6 +25,7 @@ fun BottomNavigation(navController: NavController) {
         BottomNavItem.Graph,
         BottomNavItem.Weather,
         BottomNavItem.Photos,
+        BottomNavItem.Setting
     )
     androidx.compose.material.BottomNavigation(
         backgroundColor = MaterialTheme.colors.secondary,
