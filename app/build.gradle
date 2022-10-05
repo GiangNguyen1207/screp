@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -79,4 +80,12 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+
+    // for Google Map compose library
+    implementation 'com.google.maps.android:maps-compose:2.1.1'
+    implementation 'com.google.android.gms:play-services-maps:18.0.2'
+    implementation "androidx.compose.foundation:foundation:1.2.0-beta02"
+
+    // required by get the last known location
+    implementation 'com.google.android.gms:play-services-location:20.0.0'
 }
