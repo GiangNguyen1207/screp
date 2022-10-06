@@ -17,19 +17,19 @@ import kotlinx.coroutines.channels.Channel
 class SensorDataManager (context: Context): SensorEventListener {
 
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-//    private val _stepCount: MutableLiveData<Int> = MutableLiveData(0)
-//    val stepCount: LiveData<Int> = _stepCount
+    private val _stepCountLiveData: MutableLiveData<Int> = MutableLiveData(0)
+    var stepCountLiveData: LiveData<Int> = _stepCountLiveData
 
     var stepCount: Int = 0
-    private var startTime: Long = 3
+    private var startTime: Long = 0
     private var endTime: Long = 0
 
     // Step count Data object for a particular record session
     var stepCountDTO: StepCount? = null
-//
-//    fun updateValue(value: Int){
-//        _stepCount.value = value
-//    }
+
+    fun updateValue(value: Int){
+        _stepCountLiveData.postValue(value)
+    }
 
     fun init (){
         Log.d("SENSOR_LOG", " sensorDataManager init")
@@ -42,11 +42,11 @@ class SensorDataManager (context: Context): SensorEventListener {
         stepCountDTO?.startTime = this.startTime
         Log.d("SENSOR_LOG", "sensorDataManager: current time: ${CalendarUtil().getCurrentTime()}")
 
-        Log.d("SENSOR_LOG", "sensorDataManager: step count data OBJECT onInit: ${this.startTime}")
+        Log.d("SENSOR_LOG", "sensorDataManager: step count data start time onInit: ${this.startTime}")
+        Log.d("SENSOR_LOG", "sensorDataManager stepcountLivedata in init: ${stepCountLiveData.value}")
+
 
     }
-
-//    val data: Channel<SensorData> = Channel(Channel.UNLIMITED)
 
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {}
 
@@ -54,9 +54,12 @@ class SensorDataManager (context: Context): SensorEventListener {
         p0 ?: return
         if (p0?.sensor?.type == Sensor.TYPE_STEP_DETECTOR){
             this.stepCount++
+            updateValue(stepCount)
             stepCountDTO?.total = stepCount
         }
         Log.d("SENSOR_LOG", " sensorDataManager: step counts data onsensorChanged: ${this.stepCount}")
+        Log.d("SENSOR_LOG", " sensorDataManager: step counts LIVE data onsensorChanged: ${this.stepCountLiveData.value}")
+
     }
 
     fun cancel(){
@@ -70,6 +73,7 @@ class SensorDataManager (context: Context): SensorEventListener {
         stepCountDTO?.endTime = this.endTime
 
         stepCountDTO = StepCount(uid = 0, startTime = startTime, endTime = endTime, total = stepCount)
+        Log.d("SENSOR_LOG", " sensorDataManager: step counts LIVE data on cancel: ${this.stepCountLiveData.value}")
 
         // reset step counter
         this.stepCount = 0

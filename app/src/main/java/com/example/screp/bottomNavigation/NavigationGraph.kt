@@ -32,11 +32,12 @@ fun NavigationGraph(
             MapViewScreen(
                 navController = navController,
                 photoAndMapViewModel = photoAndMapViewModel,
+                stepCountViewModel = stepCountViewModel,
                 fusedLocationProviderClient = fusedLocationProviderClient
             )
         }
         composable(BottomNavItem.Graph.screen_route) {
-            RecordStepCountComponent(stepCountViewModel = stepCountViewModel)
+            GraphScreen(stepCountViewModel = stepCountViewModel)
         }
         composable(BottomNavItem.Weather.screen_route) {
             WeatherScreen(weatherViewModel)
