@@ -20,6 +20,7 @@ import com.example.screp.sensorService.SensorDataManager
 import com.example.screp.viewModels.StepCountViewModel
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.concurrent.schedule
 
 @Composable
 fun RecordStepCountComponent(stepCountViewModel: StepCountViewModel) {
@@ -44,13 +45,24 @@ fun RecordStepCountComponent(stepCountViewModel: StepCountViewModel) {
 //    }
 
     var sensorStatusOn by remember { mutableStateOf(false) }
+    var trackingTime: Long by remember {
+        mutableStateOf(0)
+    }
+    var sessionStepCount: Int by remember { mutableStateOf(0) }
 
-    val startTime = CalendarUtil().getCurrentDateStart("2020-04-30")
-    val endTime = CalendarUtil().getCurrentDateEnd(null)
 
-    val stepCounts = stepCountViewModel.getStepCounts(startTime, endTime).observeAsState(listOf())
     val dataManager = SensorDataManager(context)
-    val sessionStepCount: Int by dataManager.stepCountLiveData.observeAsState(0)
+
+    val stepCount = dataManager.stepCountLiveData.observeAsState()
+
+    val timer = Timer("schedule", true)
+    timer.schedule(1000){
+        if (dataManager.startTime != 0L){
+            Log.d("SENSOR_LOG", "1s tick")
+            trackingTime = (CalendarUtil().getCurrentTime() - dataManager.startTime)/1000/60
+//            sessionStepCount = dataManager.stepCount
+        }
+    }
 
     Row(
         modifier = Modifier
@@ -59,13 +71,13 @@ fun RecordStepCountComponent(stepCountViewModel: StepCountViewModel) {
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Time: 0s")
+        //TODO: Check calculate time
+        Text(text = "Time: ${trackingTime} minute")
 
         Button(
             onClick = {
                 sensorStatusOn = !sensorStatusOn
                 Log.d("SENSOR_LOG", "Record component: Clicked. Sensor is on ${sensorStatusOn}")
-
                 if (sensorStatusOn) {
                     dataManager.init()
                 } else {
@@ -73,54 +85,21 @@ fun RecordStepCountComponent(stepCountViewModel: StepCountViewModel) {
                     dataManager.stepCountDTO?.let { stepCountViewModel.insert(it) }
                     Log.d("SENSOR_LOG", "Record component: session step count ${sessionStepCount}")
                     Log.d("SENSOR_LOG", "Record component: session step count live data ${dataManager.stepCountLiveData.value}")
-
                 }
             }
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_step_count),
+                tint = if (sensorStatusOn) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onPrimary,
                 contentDescription = "",
                 modifier = Modifier.size(80.dp)
             )
         }
 
-        Text(text = "Step: ${sessionStepCount}")
+        Text(text = "Step: ${stepCount.value}")
     }
 }
 
-
-//    Column(modifier = Modifier.fillMaxSize().padding(10.dp)) {
-//        Button(
-//            onClick = {
-//                sensorStatusOn = !sensorStatusOn
-//                Log.d("SENSOR_LOG", "Record component: Clicked. Sensor is on ${sensorStatusOn}")
-//
-//                if (sensorStatusOn){
-//                    scope.launch {
-//                        dataManager.init()
-//                    }
-//                } else {
-//                    dataManager.cancel()
-////                Log.d("SENSOR_LOG", "Record component: sensor start time ${dataManager.startTime}")
-//
-//                    dataManager.stepCountDTO?.let { stepCountViewModel.insert(it) }
-//                }
-//            }
-//        ){
-//
-//            Icon(
-//                painterResource(R.drawable.ic_record),
-//                contentDescription = "Start step count",
-//                tint = if (sensorStatusOn) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onPrimary,
-//                modifier = Modifier.size(50.dp).padding(10.dp)
-//            )
-//        }
-//        LazyColumn {
-//            items(stepCounts.value) {
-//                Text("$it")
-//            }
-//        }
-//    }
 
 
 

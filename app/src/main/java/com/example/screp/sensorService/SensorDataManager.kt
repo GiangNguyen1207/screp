@@ -21,15 +21,11 @@ class SensorDataManager (context: Context): SensorEventListener {
     var stepCountLiveData: LiveData<Int> = _stepCountLiveData
 
     var stepCount: Int = 0
-    private var startTime: Long = 0
+    var startTime: Long = 0
     private var endTime: Long = 0
 
     // Step count Data object for a particular record session
     var stepCountDTO: StepCount? = null
-
-    fun updateValue(value: Int){
-        _stepCountLiveData.postValue(value)
-    }
 
     fun init (){
         Log.d("SENSOR_LOG", " sensorDataManager init")
@@ -41,10 +37,7 @@ class SensorDataManager (context: Context): SensorEventListener {
         this.startTime = CalendarUtil().getCurrentTime()
         stepCountDTO?.startTime = this.startTime
         Log.d("SENSOR_LOG", "sensorDataManager: current time: ${CalendarUtil().getCurrentTime()}")
-
         Log.d("SENSOR_LOG", "sensorDataManager: step count data start time onInit: ${this.startTime}")
-        Log.d("SENSOR_LOG", "sensorDataManager stepcountLivedata in init: ${stepCountLiveData.value}")
-
 
     }
 
@@ -54,7 +47,7 @@ class SensorDataManager (context: Context): SensorEventListener {
         p0 ?: return
         if (p0?.sensor?.type == Sensor.TYPE_STEP_DETECTOR){
             this.stepCount++
-            updateValue(stepCount)
+            _stepCountLiveData.value = stepCount
             stepCountDTO?.total = stepCount
         }
         Log.d("SENSOR_LOG", " sensorDataManager: step counts data onsensorChanged: ${this.stepCount}")
@@ -73,18 +66,15 @@ class SensorDataManager (context: Context): SensorEventListener {
         stepCountDTO?.endTime = this.endTime
 
         stepCountDTO = StepCount(uid = 0, startTime = startTime, endTime = endTime, total = stepCount)
-        Log.d("SENSOR_LOG", " sensorDataManager: step counts LIVE data on cancel: ${this.stepCountLiveData.value}")
+        Log.d("SENSOR_LOG", " sensorDataManager: step counts LIVE data on cancel: ${this._stepCountLiveData.value}")
 
         // reset step counter
         this.stepCount = 0
 
         Log.d("SENSOR_LOG", "sensorDataManager: step count data OBJECT  onCancel: ${stepCountDTO?.startTime}, ${stepCountDTO?.endTime}, ${stepCountDTO?.total}")
-
-
     }
 
 }
-
 
 
 data class SensorData(
