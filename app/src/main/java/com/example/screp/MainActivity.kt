@@ -10,13 +10,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.screp.bottomNavigation.BottomNavigation
 import com.example.screp.bottomNavigation.NavigationGraph
@@ -64,8 +68,13 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     val navController = rememberNavController()
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
                     Scaffold(
-                        bottomBar = { BottomNavigation(navController = navController) }
+                        bottomBar = {
+                            if (navBackStackEntry?.destination?.route != "edit") {
+                                BottomNavigation(navController = navController) }
+                            }
                     ) { innerPadding ->
                         Box(modifier = Modifier.padding(innerPadding)) {
                             NavigationGraph(
@@ -77,8 +86,6 @@ class MainActivity : ComponentActivity() {
                                 fusedLocationProviderClient = fusedLocationProviderClient
                             )
                         }
-
-
                     }
                 }
             }

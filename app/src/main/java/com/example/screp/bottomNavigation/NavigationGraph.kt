@@ -13,6 +13,8 @@ import com.example.screp.screens.weatherScreen.WeatherScreen
 import com.example.screp.viewModels.StepCountViewModel
 import com.example.screp.viewModels.WeatherViewModel
 import com.example.screp.screens.*
+import com.example.screp.screens.settings.SettingEditScreen
+import com.example.screp.screens.settings.SettingScreen
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import java.io.File
@@ -60,12 +62,12 @@ fun NavigationGraph(
                 photoAndMapViewModel = photoAndMapViewModel
             )
         }
-        composable(BottomNavItem.Setting.screen_route) {
+        composable(BottomNavItem.Settings.screen_route) {
             SettingScreen(
                 navController = navController
             )
         }
-        composable(BottomNavItem.SettingEdit.screen_route) {
+        composable(BottomNavItem.SettingsEdit.screen_route) {
             SettingEditScreen(
                 navController = navController
             )
