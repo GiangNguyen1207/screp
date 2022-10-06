@@ -1,26 +1,18 @@
 package com.example.screp.screens
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.location.Geocoder
-import android.media.ExifInterface
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -29,15 +21,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role.Companion.Button
-import androidx.compose.ui.semantics.Role.Companion.Image
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat.requestPermissions
@@ -54,8 +40,6 @@ import kotlinx.coroutines.launch
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 @Composable
@@ -76,9 +60,9 @@ fun PhotosScreen(
     photos?.value?.forEach {
         cityNameList.add(it.cityName)
     }
-    if(photoAndMapViewModel.isLocationPermissionGranted(context)){
+    if (photoAndMapViewModel.isLocationPermissionGranted(context)) {
         Log.i("aaaaaa", "location permission granted")
-    }else{
+    } else {
         Log.i("aaaaaa", "location permission not granted")
     }
 
@@ -96,7 +80,6 @@ fun PhotosScreen(
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
         if (it) {
             var photoName = ""
-            val time: Long = SimpleDateFormat("yyyyMMdd").format(Date()).toLong()
             result.value = BitmapFactory.decodeFile(currentPhotoPath)
             photoURI.toString().split("/").toMutableList().lastOrNull()
                 ?.let {
@@ -106,37 +89,18 @@ fun PhotosScreen(
             photoAndMapViewModel.requestLocationResultCallback(fusedLocationProviderClient) { locationResult ->
 
                 locationResult.lastLocation?.let { location ->
-                   try{
-                       val address =
-                           photoAndMapViewModel.getAddress(location.latitude, location.longitude)
-                       val cityName =
-                           address.split(",").toMutableList().get(1).split(" ").toMutableList()
-                               .lastOrNull()
-                       val photo = cityName?.let { city ->
-                           Photo(
-                               uid = 0,
-                               photoName = photoName,
-                               latitude = location.latitude,
-                               longitude = location.longitude,
-                               address = "asdfsadfsdafsa",
-                               cityName = "espoo",
-                               time = time
-                           )
-                       }
-                       if (photo != null) {
-                           photoAndMapViewModel.insertPhoto(photo)
-                           Toast.makeText(context, "Photo saved", Toast.LENGTH_LONG).show()
-                       }
-                       // recompose photoScreen if state change
-                       state = !state
-                   }catch (e : IOException) {
-                       Log.i("aaaaaa", "IOException ${e}")
-                       Toast.makeText(
-                           context,
-                           "Photo not saved due to geocoder service not available",
-                           Toast.LENGTH_LONG
-                       ).show()
-                   }
+                    try {
+                        photoAndMapViewModel.savePhoto(
+                            location.latitude,
+                            location.longitude,
+                            photoName
+                        )
+                        Log.i("aaaaaa", "photo saved")
+                        state = !state
+                    } catch (e: IOException) {
+                        Log.i("aaaaaa", "IOException ${e}")
+                        Toast.makeText(context, "Photo not saved due to Geocoder service not available", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         } else
@@ -154,8 +118,9 @@ fun PhotosScreen(
                 Spacer(Modifier.height(20.0.dp))
                 Text(text = "Photo gallery", fontSize = 30.sp)
                 Spacer(Modifier.height(20.0.dp))
-                Column(modifier = Modifier
-                    .verticalScroll(rememberScrollState())
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
                 ) {
 
                     cityNameList.forEach { cityName ->
@@ -197,13 +162,21 @@ fun PhotosScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = {
-                if(photoAndMapViewModel.isLocationPermissionGranted(context)) {
+                if (photoAndMapViewModel.isLocationPermissionGranted(context)) {
                     coroutineScope.launch(Dispatchers.Default) {
                         launcher.launch(photoURI)
                     }
-                }else{
-                    Toast.makeText(context, "Photo no taken, because location permission was denied", Toast.LENGTH_LONG).show()
-                    requestPermissions(context as Activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),1)
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Photo no taken, because location permission was denied",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    requestPermissions(
+                        context as Activity,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        1
+                    )
                 }
 
             }) {
