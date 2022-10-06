@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -48,6 +49,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.BufferedInputStream
 import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -92,31 +94,36 @@ fun PhotosScreen(
                     photoName = it
                 }
             //get the current location data and save the photo info to database
-            photoAndMapViewModel.requestLocationResultCallback(fusedLocationProviderClient) { locationResult ->
+            try{
+                photoAndMapViewModel.requestLocationResultCallback(fusedLocationProviderClient) { locationResult ->
 
-                locationResult.lastLocation?.let { location ->
-                    val address =
-                        photoAndMapViewModel.getAddress(location.latitude, location.longitude)
-                    val cityName =
-                        address.split(",").toMutableList().get(1).split(" ").toMutableList()
-                            .lastOrNull()
-                    val photo = cityName?.let { city ->
-                        Photo(
-                            uid = 0,
-                            photoName = photoName,
-                            latitude = location.latitude,
-                            longitude = location.longitude,
-                            address = address,
-                            cityName = city,
-                            time = time
-                        )
+                    locationResult.lastLocation?.let { location ->
+                        val address =
+                            photoAndMapViewModel.getAddress(location.latitude, location.longitude)
+                        val cityName =
+                            address.split(",").toMutableList().get(1).split(" ").toMutableList()
+                                .lastOrNull()
+                        val photo = cityName?.let { city ->
+                            Photo(
+                                uid = 0,
+                                photoName = photoName,
+                                latitude = location.latitude,
+                                longitude = location.longitude,
+                                address = address,
+                                cityName = city,
+                                time = time
+                            )
+                        }
+                        if (photo != null) {
+                            Toast.makeText(context, "Photo is saving", Toast.LENGTH_LONG).show()
+                            photoAndMapViewModel.insertPhoto(photo)
+                        }
+                        // recompose photoScreen if state change
+                        state = !state
                     }
-                    if (photo != null) {
-                        photoAndMapViewModel.insertPhoto(photo)
-                    }
-                    // recompose photoScreen if state change
-                    state = !state
                 }
+            }catch(e: IOException){
+                Toast.makeText(context, "Photo no taken, because $e", Toast.LENGTH_LONG).show()
             }
         } else
             Log.i("aaaaaa", "Picture not taken")
@@ -176,9 +183,14 @@ fun PhotosScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = {
-                coroutineScope.launch(Dispatchers.Default) {
-                    launcher.launch(photoURI)
+                if(photoAndMapViewModel.isLocationPermissionGranted(context)) {
+                    coroutineScope.launch(Dispatchers.Default) {
+                        launcher.launch(photoURI)
+                    }
+                }else{
+                    Toast.makeText(context, "Photo no taken, because location permission was denied", Toast.LENGTH_LONG).show()
                 }
+
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_camera),
