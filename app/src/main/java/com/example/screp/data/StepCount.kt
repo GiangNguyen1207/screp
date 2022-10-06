@@ -2,6 +2,7 @@ package com.example.screp.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.screp.helpers.CalendarUtil
 
 @Entity
 data class StepCount(
@@ -9,7 +10,7 @@ data class StepCount(
     val uid: Long,
     var startTime: Long,
     var endTime: Long,
-    val total: Int
+    var total: Int
 ) {
-    override fun toString() = "Total steps are: $total"
+    override fun toString() = "Start time: ${CalendarUtil().convertLongToTime(startTime)}. End time: ${CalendarUtil().convertLongToTime(endTime)}. Total steps are: $total"
 }

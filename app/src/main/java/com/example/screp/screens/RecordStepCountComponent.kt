@@ -3,6 +3,9 @@ package com.example.screp.screens
 
 import androidx.compose.material.Icon
 import android.util.Log
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,19 +21,18 @@ import androidx.compose.ui.unit.*
 import com.example.screp.R
 import com.example.screp.helpers.CalendarUtil
 import com.example.screp.sensorService.SensorData
-import com.example.screp.sensorService.SensorDataDTO
 import com.example.screp.sensorService.SensorDataManager
 import com.example.screp.viewModels.StepCountViewModel
 import kotlinx.coroutines.launch
 import java.util.*
 
 @Composable
-fun RecordStepCountScreen(stepCountViewModel: StepCountViewModel) {
+fun RecordStepCountComponent(stepCountViewModel: StepCountViewModel) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     var data by remember {
-        mutableStateOf<SensorDataDTO?>(null)
+        mutableStateOf<SensorData?>(null)
     }
 //    DisposableEffect(Unit) {
 //        val dataManager = SensorDataManager(context)
@@ -54,40 +56,43 @@ fun RecordStepCountScreen(stepCountViewModel: StepCountViewModel) {
 
     val startTime = CalendarUtil().getCurrentDateStart("2020-04-30")
     val endTime = CalendarUtil().getCurrentDateEnd(null)
-    println(Date(startTime))
-    println(Date(endTime))
 
     val stepCounts = stepCountViewModel.getStepCounts(startTime, endTime).observeAsState(listOf())
+    val dataManager = SensorDataManager(context)
 
-    Button(
-        onClick = {
-            sensorStatusOn = !sensorStatusOn
-            Log.d("SENSOR_LOG", "Clicked. Sensor is on ${sensorStatusOn}")
-            val dataManager = SensorDataManager(context)
+    Column(modifier = Modifier.fillMaxSize().padding(10.dp)) {
+        Button(
+            onClick = {
+                sensorStatusOn = !sensorStatusOn
+                Log.d("SENSOR_LOG", "Record component: Clicked. Sensor is on ${sensorStatusOn}")
 
-            if (sensorStatusOn){
-                scope.launch {
-                    dataManager.init()
+                if (sensorStatusOn){
+                    scope.launch {
+                        dataManager.init()
+                    }
+                } else {
+                    dataManager.cancel()
+//                Log.d("SENSOR_LOG", "Record component: sensor start time ${dataManager.startTime}")
+
+                    dataManager.stepCountDTO?.let { stepCountViewModel.insert(it) }
                 }
-            } else {
-                dataManager.cancel()
+            }
+        ){
+
+            Icon(
+                painterResource(R.drawable.ic_record),
+                contentDescription = "Start step count",
+                tint = if (sensorStatusOn) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onPrimary,
+                modifier = Modifier.size(50.dp).padding(10.dp)
+            )
+        }
+        LazyColumn {
+            items(stepCounts.value) {
+                Text("$it")
             }
         }
-    ){
-//        Text(if (sensorStatusOn) "Stop" else "Start step count",
-//            fontSize = 30.sp)
-        Icon(
-            painterResource(R.drawable.ic_record),
-            contentDescription = "Start step count",
-            tint = if (sensorStatusOn) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onPrimary,
-            modifier = Modifier.size(50.dp)
-        )
     }
-    LazyColumn {
-        items(stepCounts.value) {
-            Text("$it")
-        }
-    }
+
 }
 
 

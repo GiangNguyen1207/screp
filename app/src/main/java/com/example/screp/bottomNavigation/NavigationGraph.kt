@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.screp.screens.MapViewScreen
 import com.example.screp.screens.PhotosScreen
-import com.example.screp.screens.RecordStepCountScreen
+import com.example.screp.screens.RecordStepCountComponent
 import com.example.screp.screens.weatherScreen.WeatherScreen
 import com.example.screp.viewModels.StepCountViewModel
 import com.example.screp.viewModels.WeatherViewModel
@@ -36,10 +36,7 @@ fun NavigationGraph(
             )
         }
         composable(BottomNavItem.Graph.screen_route) {
-            RecordStepCountScreen(stepCountViewModel = stepCountViewModel)
-            RecordStepCountScreen(
-                stepCountViewModel = stepCountViewModel
-            )
+            RecordStepCountComponent(stepCountViewModel = stepCountViewModel)
         }
         composable(BottomNavItem.Weather.screen_route) {
             WeatherScreen(weatherViewModel)
