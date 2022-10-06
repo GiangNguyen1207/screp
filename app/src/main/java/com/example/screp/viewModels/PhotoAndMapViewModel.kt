@@ -10,6 +10,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.Looper
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -19,7 +20,11 @@ import com.example.screp.database.AppDatabase
 import com.example.screp.repository.PhotoRepository
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class PhotoAndMapViewModel(application: Application) : AndroidViewModel(application) {
@@ -38,23 +43,40 @@ class PhotoAndMapViewModel(application: Application) : AndroidViewModel(applicat
         repository.getPhotoByCity(cityName)
 
     fun insertPhoto(photo: Photo) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             repository.insertPhoto(photo)
         }
     }
 
-    fun getAddress(lat: Double, lng: Double): String {
-        var address = ""
-        viewModelScope.launch {
+    fun savePhoto(lat: Double, lng: Double, photoName: String) {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            var address = ""
+            val time: Long = SimpleDateFormat("yyyyMMdd").format(Date()).toLong()
             val geocoder = Geocoder(context)
             if (Build.VERSION.SDK_INT >= 33) {
                 geocoder.getFromLocation(lat, lng, 1)
             } else {
                 address = geocoder.getFromLocation(lat, lng, 1)?.first()?.getAddressLine(0) ?: ""
             }
-
+            val cityName =
+                address.split(",").toMutableList().get(1).split(" ").toMutableList()
+                    .lastOrNull()
+            val photo = cityName?.let {
+                Photo(
+                    uid = 0,
+                    photoName = photoName,
+                    latitude = lat,
+                    longitude = lng,
+                    address = address,
+                    cityName = it,
+                    time = time
+                )
+            }
+            if (photo != null) {
+                insertPhoto(photo)
+            }
         }
-        return address
     }
 
     fun getDefaultLocation(): Location {
@@ -103,8 +125,9 @@ class PhotoAndMapViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-    fun isLocationPermissionGranted(context: Context) : Boolean {
+    fun isLocationPermissionGranted(context: Context): Boolean {
         return (ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            context, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED)
     }
 }
