@@ -3,6 +3,7 @@ package com.example.screp.screens
 
 import androidx.compose.material.Icon
 import android.util.Log
+import androidx.compose.material.MaterialTheme
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,6 +18,7 @@ import androidx.compose.ui.unit.*
 import com.example.screp.R
 import com.example.screp.helpers.CalendarUtil
 import com.example.screp.sensorService.SensorData
+import com.example.screp.sensorService.SensorDataDTO
 import com.example.screp.sensorService.SensorDataManager
 import com.example.screp.viewModels.StepCountViewModel
 import kotlinx.coroutines.launch
@@ -28,7 +30,7 @@ fun RecordStepCountScreen(stepCountViewModel: StepCountViewModel) {
     val scope = rememberCoroutineScope()
 
     var data by remember {
-        mutableStateOf<SensorData?>(null)
+        mutableStateOf<SensorDataDTO?>(null)
     }
 //    DisposableEffect(Unit) {
 //        val dataManager = SensorDataManager(context)
@@ -48,6 +50,7 @@ fun RecordStepCountScreen(stepCountViewModel: StepCountViewModel) {
 //    }
 
     var sensorStatusOn by remember {mutableStateOf(false)}
+
 
     val startTime = CalendarUtil().getCurrentDateStart("2020-04-30")
     val endTime = CalendarUtil().getCurrentDateEnd(null)
@@ -76,7 +79,9 @@ fun RecordStepCountScreen(stepCountViewModel: StepCountViewModel) {
         Icon(
             painterResource(R.drawable.ic_record),
             contentDescription = "Start step count",
-            modifier = Modifier.size(50.dp))
+            tint = if (sensorStatusOn) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onPrimary,
+            modifier = Modifier.size(50.dp)
+        )
     }
     LazyColumn {
         items(stepCounts.value) {

@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 data class StepCount(
     @PrimaryKey(autoGenerate = true)
     val uid: Long,
-    val startTime: Long,
-    val endTime: Long,
+    var startTime: Long,
+    var endTime: Long,
     val total: Int
 ) {
     override fun toString() = "Total steps are: $total"
