@@ -1,5 +1,8 @@
 package com.example.screp.screens
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Geocoder
@@ -37,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
 import com.example.screp.R
@@ -53,7 +57,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.N)
+
 @Composable
 fun PhotosScreen(
     navController: NavHostController,
@@ -71,6 +75,11 @@ fun PhotosScreen(
 
     photos?.value?.forEach {
         cityNameList.add(it.cityName)
+    }
+    if(photoAndMapViewModel.isLocationPermissionGranted(context)){
+        Log.i("aaaaaa", "location permission granted")
+    }else{
+        Log.i("aaaaaa", "location permission not granted")
     }
 
     //create photo uri
@@ -94,36 +103,41 @@ fun PhotosScreen(
                     photoName = it
                 }
             //get the current location data and save the photo info to database
-            try{
-                photoAndMapViewModel.requestLocationResultCallback(fusedLocationProviderClient) { locationResult ->
+            photoAndMapViewModel.requestLocationResultCallback(fusedLocationProviderClient) { locationResult ->
 
-                    locationResult.lastLocation?.let { location ->
-                        val address =
-                            photoAndMapViewModel.getAddress(location.latitude, location.longitude)
-                        val cityName =
-                            address.split(",").toMutableList().get(1).split(" ").toMutableList()
-                                .lastOrNull()
-                        val photo = cityName?.let { city ->
-                            Photo(
-                                uid = 0,
-                                photoName = photoName,
-                                latitude = location.latitude,
-                                longitude = location.longitude,
-                                address = address,
-                                cityName = city,
-                                time = time
-                            )
-                        }
-                        if (photo != null) {
-                            Toast.makeText(context, "Photo is saving", Toast.LENGTH_LONG).show()
-                            photoAndMapViewModel.insertPhoto(photo)
-                        }
-                        // recompose photoScreen if state change
-                        state = !state
-                    }
+                locationResult.lastLocation?.let { location ->
+                   try{
+                       val address =
+                           photoAndMapViewModel.getAddress(location.latitude, location.longitude)
+                       val cityName =
+                           address.split(",").toMutableList().get(1).split(" ").toMutableList()
+                               .lastOrNull()
+                       val photo = cityName?.let { city ->
+                           Photo(
+                               uid = 0,
+                               photoName = photoName,
+                               latitude = location.latitude,
+                               longitude = location.longitude,
+                               address = "asdfsadfsdafsa",
+                               cityName = "espoo",
+                               time = time
+                           )
+                       }
+                       if (photo != null) {
+                           photoAndMapViewModel.insertPhoto(photo)
+                           Toast.makeText(context, "Photo saved", Toast.LENGTH_LONG).show()
+                       }
+                       // recompose photoScreen if state change
+                       state = !state
+                   }catch (e : IOException) {
+                       Log.i("aaaaaa", "IOException ${e}")
+                       Toast.makeText(
+                           context,
+                           "Photo not saved due to geocoder service not available",
+                           Toast.LENGTH_LONG
+                       ).show()
+                   }
                 }
-            }catch(e: IOException){
-                Toast.makeText(context, "Photo no taken, because $e", Toast.LENGTH_LONG).show()
             }
         } else
             Log.i("aaaaaa", "Picture not taken")
@@ -189,6 +203,7 @@ fun PhotosScreen(
                     }
                 }else{
                     Toast.makeText(context, "Photo no taken, because location permission was denied", Toast.LENGTH_LONG).show()
+                    requestPermissions(context as Activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),1)
                 }
 
             }) {

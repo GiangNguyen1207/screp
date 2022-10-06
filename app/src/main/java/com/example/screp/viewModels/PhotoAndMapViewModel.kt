@@ -107,11 +107,4 @@ class PhotoAndMapViewModel(application: Application) : AndroidViewModel(applicat
         return (ContextCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
     }
-
-    fun getAddress(lat: Double, lng: Double, context: Context): String {
-        val geocoder = Geocoder(context)
-        var address = ""
-        address = geocoder.getFromLocation(lat, lng, 1)?.first()?.getAddressLine(0) ?: ""
-        return address
-    }
 }
