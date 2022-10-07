@@ -1,9 +1,23 @@
 package com.example.screp.helpers
 
+import android.util.Log
+import java.text.SimpleDateFormat
 import java.util.*
 
 class CalendarUtil {
     private val calendar = Calendar.getInstance()
+
+    //get the current time and store as Long
+    fun getCurrentTime(): Long {
+        Log.d("SENSOR_LOG", "current time: ${Calendar.getInstance().time.time}")
+        return Calendar.getInstance().time.time
+    }
+
+    fun convertLongToTime(time: Long): String {
+        val date = Date(time)
+        val format = SimpleDateFormat("yyyy.MM.dd HH:mm")
+        return format.format(date)
+    }
 
     //get the beginning of a given date
     fun getCurrentDateStart(givenDate: String? = null): Long {

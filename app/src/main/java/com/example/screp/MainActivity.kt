@@ -16,6 +16,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import com.example.screp.bottomNavigation.BottomNavigation
@@ -41,6 +42,14 @@ class MainActivity : ComponentActivity() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 //        hasPermissions()
         super.onCreate(savedInstanceState)
+
+        if(ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
+            //ask for permission
+            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1);
+        }
+
+
         stepCountViewModel = StepCountViewModel(application)
         weatherViewModel = WeatherViewModel()
         weatherViewModel.fetchWeatherData()
