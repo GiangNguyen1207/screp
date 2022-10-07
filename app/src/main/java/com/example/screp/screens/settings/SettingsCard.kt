@@ -22,7 +22,7 @@ fun SettingsCard(label: String, text: String) {
         elevation = 0.dp,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(32.dp)
+            .padding(24.dp)
     ) {
         Column(Modifier.padding(16.dp)) {
             Text(

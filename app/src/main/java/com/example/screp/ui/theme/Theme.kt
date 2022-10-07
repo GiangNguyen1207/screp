@@ -15,8 +15,6 @@ private val DarkColorPalette = darkColors(
     background = Background,
     onPrimary = NavBarIcon,
     onSecondary = NavBarChosenIcon
-
-
 )
 
 private val LightColorPalette = lightColors(

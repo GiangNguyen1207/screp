@@ -80,6 +80,7 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
 
     // for Google Map compose library
     implementation 'com.google.maps.android:maps-compose:2.1.1'

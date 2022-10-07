@@ -54,4 +54,12 @@ class CalendarUtil {
             "${calendar.get(Calendar.HOUR_OF_DAY)}.${calendar.get(Calendar.MINUTE)}"
         else "${calendar.get(Calendar.HOUR_OF_DAY)}"
     }
+
+    fun getCurrentHour(): Int {
+        return calendar[Calendar.HOUR_OF_DAY]
+    }
+
+    fun getCurrentMinute(): Int {
+        return calendar[Calendar.MINUTE]
+    }
 }
