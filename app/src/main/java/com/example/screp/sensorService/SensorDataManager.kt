@@ -45,6 +45,8 @@ class SensorDataManager (context: Context): SensorEventListener {
         this.startTime = CalendarUtil().getCurrentTime()
         stepCountDTO?.startTime = this.startTime
 
+
+        //TODO: format to minutes 
         val timerJob = scope.launch {
             while (isActive){
                timerTask()
