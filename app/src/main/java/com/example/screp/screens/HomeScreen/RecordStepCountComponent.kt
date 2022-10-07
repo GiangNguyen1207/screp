@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -15,16 +14,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.*
 import com.example.screp.R
 import com.example.screp.helpers.CalendarUtil
-import com.example.screp.sensorService.SensorData
 import com.example.screp.sensorService.SensorDataManager
 import com.example.screp.viewModels.StepCountViewModel
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.concurrent.schedule
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.livedata.observeAsState
 
 @Composable
-fun RecordStepCountComponent(stepCountViewModel: StepCountViewModel) {
-    val context = LocalContext.current
+fun RecordStepCountComponent(stepCountViewModel: StepCountViewModel, dataManager: SensorDataManager) {
     val scope = rememberCoroutineScope()
 
 //    DisposableEffect(Unit) {
@@ -50,19 +50,8 @@ fun RecordStepCountComponent(stepCountViewModel: StepCountViewModel) {
     }
     var sessionStepCount: Int by remember { mutableStateOf(0) }
 
+    var stepCount = dataManager.stepCountLiveData.observeAsState(0)
 
-    val dataManager = SensorDataManager(context)
-
-    val stepCount = dataManager.stepCountLiveData.observeAsState()
-
-    val timer = Timer("schedule", true)
-    timer.schedule(1000){
-        if (dataManager.startTime != 0L){
-            Log.d("SENSOR_LOG", "1s tick")
-            trackingTime = (CalendarUtil().getCurrentTime() - dataManager.startTime)/1000/60
-//            sessionStepCount = dataManager.stepCount
-        }
-    }
 
     Row(
         modifier = Modifier
@@ -71,8 +60,7 @@ fun RecordStepCountComponent(stepCountViewModel: StepCountViewModel) {
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        //TODO: Check calculate time
-        Text(text = "Time: ${trackingTime} minute")
+        Text(text = "Time: ${dataManager.sessionTrackingTime} s")
 
         Button(
             onClick = {

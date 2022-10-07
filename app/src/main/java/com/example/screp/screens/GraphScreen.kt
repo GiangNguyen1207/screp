@@ -15,7 +15,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.*
 import com.example.screp.R
 import com.example.screp.helpers.CalendarUtil
-import com.example.screp.sensorService.SensorData
 import com.example.screp.sensorService.SensorDataManager
 import com.example.screp.viewModels.StepCountViewModel
 import kotlinx.coroutines.launch
