@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -51,14 +52,14 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-//        hasPermissions()
+        hasPermissions()
         super.onCreate(savedInstanceState)
 
-        if(ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
-            //ask for permission
-            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1);
-        }
+//        if(ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
+//            //ask for permission
+//            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1);
+//        }
 
 
         stepCountViewModel = StepCountViewModel(application)
@@ -119,15 +120,15 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-//    @RequiresApi(Build.VERSION_CODES.M)
-//    private fun hasPermissions(): Boolean {
-//        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            Log.d("aaaaaa", "No gps access")
-//            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1);
-//            return true // assuming that the user grants permission
-//        }else if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-//            Log.d("aaaaaa", "gps access")
-//        }
-//        return true
-//    }
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun hasPermissions(): Boolean {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d("aaaaaa", "No gps access")
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACTIVITY_RECOGNITION ), 1);
+            return true // assuming that the user grants permission
+        }else if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            Log.d("aaaaaa", "gps access")
+        }
+        return true
+    }
 }

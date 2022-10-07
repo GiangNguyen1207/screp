@@ -46,7 +46,7 @@ class SensorDataManager (context: Context): SensorEventListener {
         stepCountDTO?.startTime = this.startTime
 
 
-        //TODO: format to minutes 
+        //TODO: format to minutes
         val timerJob = scope.launch {
             while (isActive){
                timerTask()
@@ -55,9 +55,6 @@ class SensorDataManager (context: Context): SensorEventListener {
 
             }
         }
-
-        Log.d("SENSOR_LOG", "sensorDataManager: current time: ${CalendarUtil().getCurrentTime()}")
-        Log.d("SENSOR_LOG", "sensorDataManager: step count data start time onInit: ${this.startTime}")
     }
 
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {}
@@ -96,7 +93,6 @@ class SensorDataManager (context: Context): SensorEventListener {
 
     fun timerTask(){
         if (startTime != 0L){
-            Log.d("SENSOR_LOG", "1s tick")
             sessionTrackingTime = (CalendarUtil().getCurrentTime() - startTime)/1000
         }
     }
