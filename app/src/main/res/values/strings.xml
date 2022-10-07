@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Screp</string>
+    <string name="settings">Settings</string>
+    <string name="settings_header">settings header</string>
+    <string name="settings_subtitle">Set the goal and time to receive notification.</string>
+    <string name="edit">Edit</string>
+    <string name="label_steps">Step Goal</string>
+    <string name="label_notification">Notification Time</string>
+    <string name="set_label_steps">Set step goal</string>
+    <string name="set_label_notification">Set notification time</string>
+    <string name="back">Back</string>
+    <string name="save">Save</string>
 </resources>

@@ -1,11 +1,15 @@
 package com.example.screp.bottomNavigation
 
 import android.os.Build
+import android.preference.PreferenceDataStore
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.screp.data.Settings
 import com.example.screp.screens.MapViewScreen
 import com.example.screp.screens.PhotosScreen
 import com.example.screp.screens.RecordStepCountComponent
@@ -13,8 +17,11 @@ import com.example.screp.screens.weatherScreen.WeatherScreen
 import com.example.screp.viewModels.StepCountViewModel
 import com.example.screp.viewModels.WeatherViewModel
 import com.example.screp.screens.*
+import com.example.screp.screens.settings.SettingEditScreen
+import com.example.screp.screens.settings.SettingScreen
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 
 @RequiresApi(Build.VERSION_CODES.N)
@@ -25,7 +32,11 @@ fun NavigationGraph(
     weatherViewModel: WeatherViewModel,
     photoAndMapViewModel: PhotoAndMapViewModel,
     imgPath: File?,
-    fusedLocationProviderClient: FusedLocationProviderClient
+    fusedLocationProviderClient: FusedLocationProviderClient,
+    preferenceDataStore: DataStore<Preferences>,
+    settings: Flow<Settings>,
+    STEP_GOAL: Preferences.Key<String>,
+    NOTIFICATION_TIME: Preferences.Key<String>
 ) {
     NavHost(navController, startDestination = BottomNavItem.Record.screen_route) {
         composable(BottomNavItem.Record.screen_route) {
@@ -37,7 +48,7 @@ fun NavigationGraph(
             )
         }
         composable(BottomNavItem.Graph.screen_route) {
-            GraphScreen(stepCountViewModel = stepCountViewModel)
+            GraphScreen(stepCountViewModel = stepCountViewModel, settings = settings)
         }
         composable(BottomNavItem.Weather.screen_route) {
             WeatherScreen(weatherViewModel)
@@ -58,14 +69,19 @@ fun NavigationGraph(
                 photoAndMapViewModel = photoAndMapViewModel
             )
         }
-        composable(BottomNavItem.Setting.screen_route) {
+        composable(BottomNavItem.Settings.screen_route) {
             SettingScreen(
-                navController = navController
+                navController = navController,
+                settings = settings
             )
         }
-        composable(BottomNavItem.SettingEdit.screen_route) {
+        composable(BottomNavItem.SettingsEdit.screen_route) {
             SettingEditScreen(
-                navController = navController
+                navController = navController,
+                preferenceDataStore = preferenceDataStore,
+                settings = settings,
+                STEP_GOAL,
+                NOTIFICATION_TIME
             )
         }
     }
