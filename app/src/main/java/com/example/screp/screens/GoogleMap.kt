@@ -1,9 +1,14 @@
 package com.example.screp.screens
 
 import android.Manifest
+import android.app.Activity
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -19,7 +24,8 @@ import androidx.navigation.NavHostController
 import com.example.screp.bottomNavigation.BottomNavItem
 import com.example.screp.data.Photo
 import com.example.screp.viewModels.PhotoAndMapViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
@@ -29,6 +35,45 @@ fun GoogleMap(navController: NavHostController, fusedLocationProviderClient: Fus
 
     var currentLocation by remember { mutableStateOf(photoAndMapViewModel.getDefaultLocation()) }
     var context = LocalContext.current
+
+    // ask user for location permission
+    val requestLocationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()) {
+    }
+    SideEffect {
+        requestLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+    //ask user to turn on location service
+    val enableLocationSettingLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { activityResult ->
+        if (activityResult.resultCode == Activity.RESULT_OK)
+            Log.i("aaaaaa", ("location service granted"))
+
+        else {
+            Log.i("aaaaaa", ("location service denied"))
+        }
+    }
+    val locationRequest = LocationRequest.create().apply {
+        priority = Priority.PRIORITY_HIGH_ACCURACY
+    }
+    val locationRequestBuilder = LocationSettingsRequest.Builder()
+        .addLocationRequest(locationRequest)
+    val locationSettingsResponseTask = LocationServices.getSettingsClient(context)
+        .checkLocationSettings(locationRequestBuilder.build())
+
+    locationSettingsResponseTask.addOnFailureListener { exception ->
+        if (exception is ResolvableApiException){
+            try {
+                val intentSenderRequest =
+                    IntentSenderRequest.Builder(exception.resolution).build()
+                enableLocationSettingLauncher.launch(intentSenderRequest)
+
+            } catch (sendEx: IntentSender.SendIntentException) {
+                sendEx.printStackTrace()
+            }
+        }
+    }
 
     // set map properties like map type and enable Location button
     var properties by remember {
