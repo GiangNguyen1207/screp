@@ -8,10 +8,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.screp.R
+import com.example.screp.sensorService.SensorDataManager
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import com.example.screp.viewModels.StepCountViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -20,7 +22,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 fun MapViewScreen(navController: NavHostController,
                   photoAndMapViewModel: PhotoAndMapViewModel,
                   stepCountViewModel: StepCountViewModel,
-                  fusedLocationProviderClient: FusedLocationProviderClient) {
+                  fusedLocationProviderClient: FusedLocationProviderClient,
+                  dataManager: SensorDataManager
+) {
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(
@@ -31,6 +35,6 @@ fun MapViewScreen(navController: NavHostController,
             GoogleMap(navController,fusedLocationProviderClient, photoAndMapViewModel)
         }
 
-        RecordStepCountComponent(stepCountViewModel)
+        RecordStepCountComponent(stepCountViewModel, dataManager)
     }
 }

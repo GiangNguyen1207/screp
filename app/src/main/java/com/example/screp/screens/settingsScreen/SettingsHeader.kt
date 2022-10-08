@@ -1,4 +1,4 @@
-package com.example.screp.screens.settings
+package com.example.screp.screens.settingsScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
