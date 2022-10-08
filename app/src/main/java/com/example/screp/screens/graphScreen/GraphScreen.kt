@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import com.example.screp.screens.graphScreen.RecordCard
 import com.example.screp.R
+import com.example.screp.data.StepCount
 
 @Composable
 fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>) {
@@ -135,7 +136,7 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
             modifier = Modifier.padding(10.dp)
         )
         LazyColumn (){
-            items(stepCounts.value) {
+            items(stepCounts.value.sortedByDescending { it.startTime }) {
                 val timeString = CalendarUtil().formatTimeForRecordCard(it.startTime, it.endTime)
                 RecordCard(time = timeString, stepCount = it.total.toString())
             }
