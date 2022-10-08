@@ -1,6 +1,5 @@
-package com.example.screp.screens.settings
+package com.example.screp.screens.settingsScreen
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

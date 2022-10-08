@@ -22,10 +22,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 fun MapViewScreen(navController: NavHostController,
                   photoAndMapViewModel: PhotoAndMapViewModel,
                   stepCountViewModel: StepCountViewModel,
-                  fusedLocationProviderClient: FusedLocationProviderClient) {
-
-    val context = LocalContext.current
-    val dataManager = SensorDataManager(context)
+                  fusedLocationProviderClient: FusedLocationProviderClient,
+                  dataManager: SensorDataManager
+) {
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(

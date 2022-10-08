@@ -9,7 +9,6 @@ class CalendarUtil {
 
     //get the current time and store as Long
     fun getCurrentTime(): Long {
-        Log.d("SENSOR_LOG", "current time: ${Calendar.getInstance().time.time}")
         return Calendar.getInstance().time.time
     }
 

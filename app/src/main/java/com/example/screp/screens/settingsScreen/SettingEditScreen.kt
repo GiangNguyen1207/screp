@@ -1,4 +1,4 @@
-package com.example.screp.screens.settings
+package com.example.screp.screens.settingsScreen
 
 import android.app.TimePickerDialog
 import androidx.compose.foundation.clickable

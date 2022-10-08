@@ -28,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.screp.bottomNavigation.BottomNavigation
 import com.example.screp.bottomNavigation.NavigationGraph
 import com.example.screp.data.Settings
+import com.example.screp.sensorService.SensorDataManager
 import com.example.screp.ui.theme.ScrepTheme
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import com.example.screp.viewModels.StepCountViewModel
@@ -45,21 +46,25 @@ class MainActivity : ComponentActivity() {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
         val STEP_GOAL = stringPreferencesKey("stepGoal")
         val NOTIFICATION_TIME = stringPreferencesKey("notificationTime")
+
     }
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private lateinit var dataManager: SensorDataManager
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        dataManager = SensorDataManager(this)
+
         hasPermissions()
         super.onCreate(savedInstanceState)
 
-//        if(ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
-//            //ask for permission
-//            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1);
-//        }
+        if(ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
+            //ask for permission
+            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1)
+        }
 
 
         stepCountViewModel = StepCountViewModel(application)
@@ -75,16 +80,6 @@ class MainActivity : ComponentActivity() {
                 notificationTime = preferences[NOTIFICATION_TIME] ?: "5:00"
             )
         }
-
-        //insert hardcode data into db
-//        stepCountViewModel.insert(
-//            com.example.screp.data.StepCount(
-//                0,
-//                1664273400000,
-//                1664276736059,
-//                1000
-//            )
-//        )
 
         setContent {
             ScrepTheme {
@@ -109,6 +104,7 @@ class MainActivity : ComponentActivity() {
                                 photoAndMapViewModel = photoAndMapViewModel,
                                 imgPath = imgPath,
                                 fusedLocationProviderClient = fusedLocationProviderClient,
+                                dataManager = dataManager,
                                 preferenceDataStore = context.dataStore,
                                 settings = settings,
                                 STEP_GOAL = STEP_GOAL,
