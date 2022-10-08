@@ -13,8 +13,8 @@ data class StepCount(
     var total: Int,
     var trackingTimeInSeconds: Long = (endTime - startTime)/1000
 ) {
-    override fun toString() = "Start time: ${CalendarUtil().convertLongToTime(startTime)}. " +
-            "End time: ${CalendarUtil().convertLongToTime(endTime)}." +
+    override fun toString() = "Start time: ${CalendarUtil().convertLongToTime(time=startTime)}. " +
+            "End time: ${CalendarUtil().convertLongToTime(time=endTime)}." +
             "Total tracking time: ${trackingTimeInSeconds} seconds" +
             " Total steps: $total"
 }

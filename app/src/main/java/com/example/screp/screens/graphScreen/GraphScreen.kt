@@ -24,15 +24,16 @@ import kotlinx.coroutines.flow.Flow
 import java.util.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import com.example.screp.screens.graphScreen.RecordCard
+import com.example.screp.R
 
 @Composable
 fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>) {
@@ -53,7 +54,6 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
     if (listRecordsInPeriod.size > 0){
         totalStepCountInPeriod= listRecordsInPeriod.reduce { acc, i ->  acc + i}
     }
-
 
 
     val savedSettings = settings.collectAsState(initial = Settings())
@@ -80,9 +80,17 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
         ){
             CircularProgressBar(percentage = (totalStepCountInPeriod.toFloat()/stepGoal), number = stepGoal)
         }
+        Text(
+            stringResource(id = R.string.recordList_title),
+            fontSize = 25.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colors.onPrimary,
+            modifier = Modifier.padding(10.dp)
+        )
         LazyColumn (){
             items(stepCounts.value) {
-                Text("$it")
+                val timeString = CalendarUtil().formatTimeForRecordCard(it.startTime, it.endTime)
+                RecordCard(time = timeString, stepCount = it.total.toString())
             }
         }
 
@@ -119,7 +127,7 @@ fun CircularProgressBar(
         modifier = Modifier
             .size(radius * 2.1f)
             .clip(CircleShape)
-            .background(Color.White)
+            .background(MaterialTheme.colors.onPrimary)
     ){
         Canvas(modifier = Modifier.size(radius*2f)){
             drawArc(
@@ -144,7 +152,7 @@ fun CircularProgressBar(
                 color = color,
                 fontSize = fontSize)
             Text ("Goal: ${number}",
-                color = color,
+                color = MaterialTheme.colors.primary,
                 fontSize = fontSize)
         }
 

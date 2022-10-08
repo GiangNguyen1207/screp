@@ -1,6 +1,7 @@
 package com.example.screp.helpers
 
 import android.util.Log
+import androidx.compose.ui.text.buildAnnotatedString
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -29,12 +30,28 @@ class CalendarUtil {
 
 
     // Format time value as Long to formatted date and time string
-    fun convertLongToTime(time: Long): String {
+    fun convertLongToTime(format: String = "yyyy.MM.dd HH:mm", time: Long): String {
         val date = Date(time)
-        val format = SimpleDateFormat("yyyy.MM.dd HH:mm")
+        val format = SimpleDateFormat(format)
         return format.format(date)
     }
 
+    // Format time for record card
+    fun formatTimeForRecordCard(startTime: Long, endTime: Long): String{
+        var dateString = "${convertLongToTime(time=startTime)} - ${convertLongToTime(time=endTime)}"
+        val startTimeDateString = convertLongToTime("yyyy.MM.dd", startTime)
+        val endTimeDateString = convertLongToTime("yyyy.MM.dd", endTime)
+        if (startTimeDateString == endTimeDateString){
+            dateString = buildAnnotatedString {
+                append(startTimeDateString)
+                append("\n")
+                append(convertLongToTime("HH:mm", startTime))
+                append("-")
+                append(convertLongToTime("HH:mm", endTime))
+            }.toString()
+        }
+        return dateString
+    }
 
 
     //get the beginning of a given date
