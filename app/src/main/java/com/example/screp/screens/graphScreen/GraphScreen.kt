@@ -24,13 +24,16 @@ import kotlinx.coroutines.flow.Flow
 import java.util.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import com.example.screp.screens.graphScreen.RecordCard
 import com.example.screp.R
@@ -39,25 +42,32 @@ import com.example.screp.R
 fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>) {
     val context = LocalContext.current
 
+    // Get start and end time, with start time depends on the current state of selected option
     val todayDate = CalendarUtil().getTodayDate()
-    val startTimeToday = CalendarUtil().getCurrentDateStart(todayDate)
+    val lastWeekDate = CalendarUtil().getCalculatedDate(days=-7)
 
-    val startTime = CalendarUtil().getCurrentDateStart(todayDate)
+    var startTime by remember { mutableStateOf( CalendarUtil().getCurrentDateStart(todayDate)) }
     val endTime = CalendarUtil().getCurrentDateEnd(todayDate)
 
-    // get all step count record of all time
-    val stepCounts = stepCountViewModel.getStepCounts(startTime, endTime).observeAsState(listOf())
+    // Init step count in period
     var totalStepCountInPeriod: Int = 0
 
+    // init variable and state for the graph display option
+    val options = listOf("Day", "Week")
+    var selectedOption by remember { mutableStateOf("Day")}
+    val onSelectionChange = {text: String -> selectedOption = text}
+
+    // Fetch data from database based on selected period
+    val stepCounts = stepCountViewModel.getStepCounts(startTime, endTime).observeAsState(listOf())
+
+    // Parse step count data to Int for graph generation
     var listRecordsInPeriod: List<Int> = stepCounts.value.map { it -> it.total }
-    Log.d("GRAPH_LOG", "list records in period ${listRecordsInPeriod.size.toString()}")
     if (listRecordsInPeriod.size > 0){
         totalStepCountInPeriod= listRecordsInPeriod.reduce { acc, i ->  acc + i}
     }
 
-
+    //get daily step goal from user setting (default = 5000/day)
     val savedSettings = settings.collectAsState(initial = Settings())
-    //get step goal:
     val stepGoal = savedSettings.value.stepGoal.toInt()
 
     Column(
@@ -74,11 +84,48 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
                 )
             )
     ){
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .padding(10.dp)
+        ){
+            options.forEach { text ->
+                Row(horizontalArrangement = Arrangement.Center){
+                    Text(text,
+                        color = MaterialTheme.colors.primary,
+                        modifier = Modifier
+                            .clickable {
+                                onSelectionChange(text)
+                                if (selectedOption == "Week") {
+                                    startTime = CalendarUtil().getCurrentDateStart(lastWeekDate)
+                                }
+                            }
+                            .background(
+                                if (text == selectedOption) {
+                                    MaterialTheme.colors.background
+                                } else {
+                                    Color.LightGray
+                                }
+                            )
+                            .padding(
+                                vertical = 12.dp,
+                                horizontal = 16.dp,
+                            )
+                    )
+                }
+            }
+        }
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.padding(30.dp)
         ){
-            CircularProgressBar(percentage = (totalStepCountInPeriod.toFloat()/stepGoal), number = stepGoal)
+            if (selectedOption == "Day"){
+                CircularProgressBar(percentage = (totalStepCountInPeriod.toFloat()/stepGoal), number = stepGoal)
+            } else if (selectedOption == "Week"){
+                CircularProgressBar(percentage = (totalStepCountInPeriod.toFloat()/(stepGoal*7)), number = stepGoal*7)
+            }
         }
         Text(
             stringResource(id = R.string.recordList_title),
@@ -141,7 +188,7 @@ fun CircularProgressBar(
         Column(horizontalAlignment = Alignment.CenterHorizontally){
             Text (
                 buildAnnotatedString {
-                    append("Total \n")
+                    append("Total\n")
                     withStyle(
                         style = SpanStyle(fontSize = 50.sp,
                         fontWeight = FontWeight.Bold))
@@ -150,16 +197,12 @@ fun CircularProgressBar(
                     }
                 },
                 color = color,
-                fontSize = fontSize)
+                fontSize = fontSize,
+                textAlign = TextAlign.Center
+            )
             Text ("Goal: ${number}",
                 color = MaterialTheme.colors.primary,
                 fontSize = fontSize)
         }
-
-
-
     }
 }
-
-
-
