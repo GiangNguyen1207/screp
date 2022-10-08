@@ -9,14 +9,33 @@ class CalendarUtil {
 
     //get the current time and store as Long
     fun getCurrentTime(): Long {
-        return Calendar.getInstance().time.time
+        return calendar.time.time
     }
 
+    // get today's date as string
+    fun getTodayDate(): String {
+        val currentDate = getCurrentTime()
+        return SimpleDateFormat("yyyy-MM-dd").format(currentDate)
+    }
+
+
+    // get calculated date by time delta:
+    fun getCalculatedDate(dateFormat: String = "yyyy-MM-dd", days: Int): String? {
+        val cal = Calendar.getInstance()
+        val format = SimpleDateFormat(dateFormat)
+        cal.add(Calendar.DAY_OF_YEAR, days)
+        return format.format(cal.timeInMillis)
+    }
+
+
+    // Format time value as Long to formatted date and time string
     fun convertLongToTime(time: Long): String {
         val date = Date(time)
         val format = SimpleDateFormat("yyyy.MM.dd HH:mm")
         return format.format(date)
     }
+
+
 
     //get the beginning of a given date
     fun getCurrentDateStart(givenDate: String? = null): Long {
