@@ -9,10 +9,15 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.screp.data.StepCount
 import com.example.screp.helpers.CalendarUtil
+import com.example.screp.helpers.Converter
 import kotlinx.coroutines.*
 
 // Handle sensor data in thread
@@ -30,11 +35,15 @@ class SensorDataManager (context: Context): SensorEventListener {
     private val _stepCountLiveData: MutableLiveData<Int> = MutableLiveData(0)
     var stepCountLiveData: LiveData<Int> = _stepCountLiveData
 
+    private val _trackingTime: MutableLiveData<Long> = MutableLiveData(0)
+    var trackingTime: LiveData<Long> = _trackingTime
+
+    var sensorStatusOn: Boolean = false
     var stepCount: Int = 0
     var startTime: Long = 0
     private var endTime: Long = 0
 
-    var sessionTrackingTime = 0L
+    private var sessionTrackingTime = 0L
     val scope = CoroutineScope(Dispatchers.Default)
 
     // Step count Data object for a particular record session
@@ -49,7 +58,7 @@ class SensorDataManager (context: Context): SensorEventListener {
         }
     }
     val mRunnable = Conn(mHandler, stepCountLiveData)
-    val mThread = Thread(mRunnable)
+    var mThread = Thread(mRunnable)
 
     fun init (){
         Log.d("SENSOR_LOG", " sensorDataManager init")
@@ -61,13 +70,14 @@ class SensorDataManager (context: Context): SensorEventListener {
             sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_UI )
         }
         this.startTime = CalendarUtil().getCurrentTime()
+        this.sensorStatusOn = true
         stepCountDTO?.startTime = this.startTime
 
         // start the thread to handle message loop
+        mThread = Thread(mRunnable)
         mThread.start()
 
         // timer job to update session's tracking time
-        //TODO: format to minutes
         val timerJob = scope.launch {
             while (isActive){
                timerTask()
@@ -86,38 +96,44 @@ class SensorDataManager (context: Context): SensorEventListener {
             stepCountDTO?.total = stepCount
             mRunnable.run()
         }
-        Log.d("SENSOR_LOG", " sensorDataManager: step counts data onsensorChanged: ${this.stepCount}")
-        Log.d("SENSOR_LOG", " sensorDataManager: step counts LIVE data onsensorChanged: ${this.stepCountLiveData.value}")
+//        Log.d("SENSOR_LOG", " sensorDataManager: step counts data onsensorChanged: ${this.stepCount}")
+//        Log.d("SENSOR_LOG", " sensorDataManager: step counts LIVE data onsensorChanged: ${this.stepCountLiveData.value}")
 
     }
 
     fun cancel(){
         Log.d("SENSOR_LOG", "sensor cancel")
+
+        sensorManager.unregisterListener(this)
         this.endTime = CalendarUtil().getCurrentTime()
         this.stepCount++
-//        Log.d("SENSOR_LOG", "sensorDataManager: step count startTime onCancel: ${this.startTime}")
-//        Log.d("SENSOR_LOG", "sensorDataManager: step count stepcount onCancel: ${this.stepCount}")
-//        Log.d("SENSOR_LOG", "sensorDataManager: step count endTime onCancel: ${this.endTime}")
-        sensorManager.unregisterListener(this)
         stepCountDTO?.endTime = this.endTime
+
 
         stepCountDTO = StepCount(uid = 0, startTime = startTime, endTime = endTime, total = stepCount)
 //        Log.d("SENSOR_LOG", " sensorDataManager: step counts LIVE data on cancel: ${this._stepCountLiveData.value}")
 
         // reset step counter
         this.stepCount = 0
+        _stepCountLiveData.value = stepCount
+        _trackingTime.value = 0
+
+        Log.d("SENSOR_LOG", "sensorDataManager: step count data OBJECT  onCancel: ${stepCountDTO?.startTime}, ${stepCountDTO?.endTime}, ${stepCountDTO?.total}")
+        Log.d("SENSOR_LOG", "now interrupt thread")
+        this.sensorStatusOn = false
         mThread.interrupt()
 
-//        Log.d("SENSOR_LOG", "sensorDataManager: step count data OBJECT  onCancel: ${stepCountDTO?.startTime}, ${stepCountDTO?.endTime}, ${stepCountDTO?.total}")
     }
 
 
     fun timerTask(){
-        if (startTime != 0L){
-            sessionTrackingTime = (CalendarUtil().getCurrentTime() - startTime)/1000
+        if (sensorStatusOn){
+            sessionTrackingTime = (CalendarUtil().getCurrentTime() - startTime)
+            _trackingTime.postValue(sessionTrackingTime)
+        } else {
+            sessionTrackingTime = 0
         }
     }
-
 }
 
 

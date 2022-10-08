@@ -16,17 +16,20 @@ import com.example.screp.viewModels.StepCountViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.livedata.observeAsState
+import com.example.screp.helpers.Converter
 
 
 @Composable
 fun RecordStepCountComponent(stepCountViewModel: StepCountViewModel, dataManager: SensorDataManager) {
 //    val scope = rememberCoroutineScope()
 
-    var sensorStatusOn by remember { mutableStateOf(false) }
     var sessionStepCount: Int by remember { mutableStateOf(0) }
-
+    var sensorStatusOn: Boolean by remember {
+        mutableStateOf(false)
+    }
     var stepCount = dataManager.stepCountLiveData.observeAsState(0)
-
+    Log.d("SENSOR_LOG", "Record component: onStart. Sensor is on ${dataManager.sensorStatusOn}")
+    var trackingTime = dataManager.trackingTime.observeAsState(0)
 
     Row(
         modifier = Modifier
@@ -35,16 +38,22 @@ fun RecordStepCountComponent(stepCountViewModel: StepCountViewModel, dataManager
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Time: ${dataManager.sessionTrackingTime} s")
+        Text(text = "Time: ${Converter().trackingTimeFormatter(trackingTime.value)}")
 
         Button(
             onClick = {
-                sensorStatusOn = !sensorStatusOn
-                Log.d("SENSOR_LOG", "Record component: Clicked. Sensor is on ${sensorStatusOn}")
-                if (sensorStatusOn) {
+                sensorStatusOn = dataManager.sensorStatusOn
+                Log.d("SENSOR_LOG", "Record component: Clicked. Sensor is on ${dataManager.sensorStatusOn}")
+                if (!sensorStatusOn) {
                     dataManager.init()
+                    sensorStatusOn = dataManager.sensorStatusOn
+
                 } else {
                     dataManager.cancel()
+                    sensorStatusOn = dataManager.sensorStatusOn
+
+                    Log.d("SENSOR_LOG", "Record component: Clicked. Sensor is on ${dataManager.sensorStatusOn}")
+
                     dataManager.stepCountDTO?.let { stepCountViewModel.insert(it) }
                     Log.d("SENSOR_LOG", "Record component: session step count ${sessionStepCount}")
                     Log.d("SENSOR_LOG", "Record component: session step count live data ${dataManager.stepCountLiveData.value}")
