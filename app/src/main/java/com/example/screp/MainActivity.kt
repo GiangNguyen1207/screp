@@ -50,6 +50,7 @@ class MainActivity : ComponentActivity() {
         private lateinit var stepCountViewModel: StepCountViewModel
         private lateinit var weatherViewModel: WeatherViewModel
         private lateinit var photoAndMapViewModel: PhotoAndMapViewModel
+        private lateinit var bluetoothServiceManager: BluetoothServiceManager
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
         val STEP_GOAL = stringPreferencesKey("stepGoal")
         val NOTIFICATION_TIME = stringPreferencesKey("notificationTime")
@@ -57,7 +58,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var dataManager: SensorDataManager
-    private lateinit var bluetoothServiceManager: BluetoothServiceManager
+
     lateinit var takePermissions: ActivityResultLauncher<Array<String>>
     lateinit var takeResultLauncher: ActivityResultLauncher<Intent>
 
@@ -65,16 +66,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         dataManager = SensorDataManager(this)
-        bluetoothServiceManager = BluetoothServiceManager(this)
 
         super.onCreate(savedInstanceState)
 
+        bluetoothServiceManager = BluetoothServiceManager(this)
         hasLocationPermissions()
         getActivityPermission()
-        getBluetoothPermission()
 
         // initiate bluetoothService
         bluetoothServiceManager.init()
+        getBluetoothPermission()
+
 
         stepCountViewModel = StepCountViewModel(application)
         weatherViewModel = WeatherViewModel()
@@ -184,9 +186,7 @@ class MainActivity : ComponentActivity() {
             Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_ADMIN,
             Manifest.permission.BLUETOOTH_SCAN,
-            Manifest.permission.BLUETOOTH_CONNECT,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACTIVITY_RECOGNITION
+            Manifest.permission.BLUETOOTH_CONNECT
         ))
 
     }

@@ -1,14 +1,18 @@
 package com.example.screp.screens
 
+import android.bluetooth.le.ScanResult
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Environment
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -97,13 +101,31 @@ fun PhotoDetailScreen(
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.onSecondary),
             ){
-                    Icon(painter = painterResource(id = R.drawable.ic_share),
-                        contentDescription = stringResource(R.string.share),
-                        modifier = Modifier.clip(CircleShape).fillMaxSize()
-                    )
-                }
+                Icon(painter = painterResource(id = R.drawable.ic_share),
+                    contentDescription = stringResource(R.string.share),
+                    modifier = Modifier.clip(CircleShape).fillMaxSize()
+                )
+            }
         }
 
+
+        ShowDevices(bluetoothServiceManager)
     }
 
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun ShowDevices(model: BluetoothServiceManager) {
+    val context = LocalContext.current
+    val value: List<ScanResult>? by model.scanResults.observeAsState(null)
+    val fScanning: Boolean by model.fScanning.observeAsState(false)
+    Column (modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(if (fScanning) "Scanning" else "Not scanning")
+        Text(if (value?.size ==0) "no devices" else if (value == null) "" else "found ${value?.size}")
+        value?.forEach {
+            Text("Device: ${it.device.name} ${it.device}")
+        }
+    }
 }

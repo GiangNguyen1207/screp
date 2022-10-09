@@ -11,11 +11,13 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Context.BLUETOOTH_SERVICE
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -24,15 +26,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.*
 
-class BluetoothServiceManager (context: Context) {
+
+class BluetoothServiceManager (context: Context): ViewModel() {
 
     private val context = context
 
     private lateinit var bluetoothManager: BluetoothManager
     lateinit var bluetoothAdapter: BluetoothAdapter
-    lateinit var takePermissions: ActivityResultLauncher<Array<String>>
-    lateinit var takeResultLauncher: ActivityResultLauncher<Intent>
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -51,8 +53,9 @@ class BluetoothServiceManager (context: Context) {
     }
 
     fun scanDevices(scanner: BluetoothLeScanner, context: Context) {
-        scope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             fScanning.postValue(true)
+
             val settings = ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 .setReportDelay(0)
@@ -64,6 +67,9 @@ class BluetoothServiceManager (context: Context) {
 
             delay(GattAttributes.SCAN_PERIOD)
             scanner.stopScan(leScanCallback)
+            Log.d("BT_LOG", "mResults: ${mResults.size}")
+            Log.d("BT_LOG", "mResults: ${mResults.values}")
+
             scanResults.postValue(mResults.values.toList())
             Log.d("BT_LOG", "scan results: ${scanResults.value?.size}")
 
@@ -72,11 +78,13 @@ class BluetoothServiceManager (context: Context) {
     }
 
     private val leScanCallback: ScanCallback = object : ScanCallback() {
+        @RequiresApi(Build.VERSION_CODES.O)
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
             val device = result.device
             val deviceAddress = device.address
             mResults!![deviceAddress] = result
+//            Log.d("BT_LOG", "Device address: $deviceAddress (${result.isConnectable})")
         }
     }
 
