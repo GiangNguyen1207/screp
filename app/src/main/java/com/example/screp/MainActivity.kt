@@ -53,13 +53,11 @@ class MainActivity : ComponentActivity() {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
         val STEP_GOAL = stringPreferencesKey("stepGoal")
         val NOTIFICATION_TIME = stringPreferencesKey("notificationTime")
-
     }
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var dataManager: SensorDataManager
     private lateinit var bluetoothServiceManager: BluetoothServiceManager
-
     lateinit var takePermissions: ActivityResultLauncher<Array<String>>
     lateinit var takeResultLauncher: ActivityResultLauncher<Intent>
 
@@ -69,20 +67,26 @@ class MainActivity : ComponentActivity() {
         dataManager = SensorDataManager(this)
         bluetoothServiceManager = BluetoothServiceManager(this)
 
-        hasLocationPermissions()
-        getActivityPermission()
-
         super.onCreate(savedInstanceState)
 
+        hasLocationPermissions()
+        getActivityPermission()
+        getBluetoothPermission()
+
+        // initiate bluetoothService
+        bluetoothServiceManager.init()
 
         stepCountViewModel = StepCountViewModel(application)
         weatherViewModel = WeatherViewModel()
         weatherViewModel.fetchWeatherData()
         photoAndMapViewModel = PhotoAndMapViewModel(application)
-        val imgPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        Log.d("BT_LOG", imgPath.toString())
-        val context = this
 
+
+        // Get path to save and get photos
+        val imgPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+
+        // setup data shared preferences
+        val context = this
         val settings: Flow<Settings> = context.dataStore.data.map { preferences ->
             Settings(
                 stepGoal = preferences[STEP_GOAL] ?: "5000",
@@ -90,50 +94,6 @@ class MainActivity : ComponentActivity() {
             )
         }
 
-        // Get BT permissions
-        takePermissions =
-            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
-            {
-                it.entries.forEach{
-                    Log.d("BT_LOG list permission", "${it.key} = ${it.value}")
-
-                    if (it.value == false) {
-                        val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                        takeResultLauncher.launch(enableBtIntent)
-                    }
-                }
-                if (it[Manifest.permission.BLUETOOTH_ADMIN] == true
-                    && it[Manifest.permission.ACCESS_FINE_LOCATION] == true){
-//
-//                    bluetoothAdapter.bluetoothLeScanner.let { scan ->
-//                        bluetoothViewModel.scanDevices(
-//                            scan,
-//                            this
-//                        )
-//                    }
-                } else {
-                    Toast.makeText(applicationContext, "Not all permissions are granted", Toast.LENGTH_SHORT).show()
-                }
-            }
-        takeResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult(),
-            ActivityResultCallback{
-                    result -> if (result.resultCode == RESULT_OK){
-                Log.d("DBG result callback ok", " ${result.resultCode}")
-            } else {
-                Log.d("DBG result callback NOT OK", " ${result.resultCode}")
-            }
-        })
-
-
-        takePermissions.launch(arrayOf(
-            Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_ADMIN,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACTIVITY_RECOGNITION
-        ))
-
-        // initiate bluetoothService
-        bluetoothServiceManager.init()
 
         setContent {
             ScrepTheme {
@@ -143,6 +103,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
+
 
                     Scaffold(
                         bottomBar = {
@@ -191,6 +152,44 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun getBluetoothPermission(){
+        // Get BT permissions
+        takePermissions =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
+            {
+                it.entries.forEach{
+                    Log.d("BT_LOG", " list permission" + "${it.key} = ${it.value}")
+                    if (it.value == false) {
+                        val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                        takeResultLauncher.launch(enableBtIntent)
+                    }
+                }
+                if (it[Manifest.permission.BLUETOOTH_ADMIN] == true
+                    && it[Manifest.permission.ACCESS_FINE_LOCATION] == true){
+                    Log.d("BT_LOG", "bluetooth and location access OK")
+                } else {
+                    Toast.makeText(applicationContext, "Bluetooth permissions are not granted", Toast.LENGTH_SHORT).show()
+                }
+            }
+        takeResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult(),
+            ActivityResultCallback{
+                    result -> if (result.resultCode == RESULT_OK){
+                Log.d("DBG result callback ok", " ${result.resultCode}")
+            } else {
+                Log.d("DBG result callback NOT OK", " ${result.resultCode}")
+            }
+            })
+
+        takePermissions.launch(arrayOf(
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACTIVITY_RECOGNITION
+        ))
+
+    }
 
 
 }

@@ -1,4 +1,8 @@
 package com.example.screp.bluetoothService
 
-class BluetoothDataViewModel {
+import androidx.lifecycle.ViewModel
+
+class BluetoothDataViewModel: ViewModel() {
+    // 1.
+
 }

@@ -12,4 +12,5 @@
     <string name="save">Save</string>
     <string name="recordcard_title">Steps</string>
     <string name="recordList_title">All activities</string>
+    <string name="share">share via bluetooth</string>
 </resources>
