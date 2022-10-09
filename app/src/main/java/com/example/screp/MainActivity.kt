@@ -1,14 +1,20 @@
 package com.example.screp
 
 import android.Manifest
+import android.bluetooth.BluetoothAdapter
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +31,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
+import com.example.screp.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavigation
 import com.example.screp.bottomNavigation.NavigationGraph
 import com.example.screp.data.Settings
@@ -51,20 +58,21 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var dataManager: SensorDataManager
+    private lateinit var bluetoothServiceManager: BluetoothServiceManager
+
+    lateinit var takePermissions: ActivityResultLauncher<Array<String>>
+    lateinit var takeResultLauncher: ActivityResultLauncher<Intent>
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         dataManager = SensorDataManager(this)
+        bluetoothServiceManager = BluetoothServiceManager(this)
 
-        hasPermissions()
+        hasLocationPermissions()
+        getActivityPermission()
+
         super.onCreate(savedInstanceState)
-
-        if(ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
-            //ask for permission
-            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1)
-        }
 
 
         stepCountViewModel = StepCountViewModel(application)
@@ -72,6 +80,7 @@ class MainActivity : ComponentActivity() {
         weatherViewModel.fetchWeatherData()
         photoAndMapViewModel = PhotoAndMapViewModel(application)
         val imgPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        Log.d("BT_LOG", imgPath.toString())
         val context = this
 
         val settings: Flow<Settings> = context.dataStore.data.map { preferences ->
@@ -80,6 +89,51 @@ class MainActivity : ComponentActivity() {
                 notificationTime = preferences[NOTIFICATION_TIME] ?: "5:00"
             )
         }
+
+        // Get BT permissions
+        takePermissions =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
+            {
+                it.entries.forEach{
+                    Log.d("BT_LOG list permission", "${it.key} = ${it.value}")
+
+                    if (it.value == false) {
+                        val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                        takeResultLauncher.launch(enableBtIntent)
+                    }
+                }
+                if (it[Manifest.permission.BLUETOOTH_ADMIN] == true
+                    && it[Manifest.permission.ACCESS_FINE_LOCATION] == true){
+//
+//                    bluetoothAdapter.bluetoothLeScanner.let { scan ->
+//                        bluetoothViewModel.scanDevices(
+//                            scan,
+//                            this
+//                        )
+//                    }
+                } else {
+                    Toast.makeText(applicationContext, "Not all permissions are granted", Toast.LENGTH_SHORT).show()
+                }
+            }
+        takeResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult(),
+            ActivityResultCallback{
+                    result -> if (result.resultCode == RESULT_OK){
+                Log.d("DBG result callback ok", " ${result.resultCode}")
+            } else {
+                Log.d("DBG result callback NOT OK", " ${result.resultCode}")
+            }
+        })
+
+
+        takePermissions.launch(arrayOf(
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACTIVITY_RECOGNITION
+        ))
+
+        // initiate bluetoothService
+        bluetoothServiceManager.init()
 
         setContent {
             ScrepTheme {
@@ -108,7 +162,8 @@ class MainActivity : ComponentActivity() {
                                 preferenceDataStore = context.dataStore,
                                 settings = settings,
                                 STEP_GOAL = STEP_GOAL,
-                                NOTIFICATION_TIME = NOTIFICATION_TIME
+                                NOTIFICATION_TIME = NOTIFICATION_TIME,
+                                bluetoothServiceManager = bluetoothServiceManager
                             )
                         }
                     }
@@ -116,15 +171,26 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun hasPermissions(): Boolean {
+
+    private fun hasLocationPermissions(): Boolean {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d("aaaaaa", "No gps access")
-            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACTIVITY_RECOGNITION ), 1);
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION ), 1);
             return true // assuming that the user grants permission
-        }else if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+        } else if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
             Log.d("aaaaaa", "gps access")
         }
         return true
     }
+
+    private fun getActivityPermission(){
+        if(ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
+            //ask for permission
+            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1)
+        }
+    }
+
+
+
 }

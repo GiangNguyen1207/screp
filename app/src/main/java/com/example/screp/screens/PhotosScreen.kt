@@ -30,6 +30,7 @@ import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
 import com.example.screp.R
+import com.example.screp.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavItem
 import com.example.screp.data.Photo
 import com.example.screp.viewModels.PhotoAndMapViewModel
@@ -47,7 +48,8 @@ fun PhotosScreen(
     navController: NavHostController,
     photoAndMapViewModel: PhotoAndMapViewModel,
     imgPath: File?,
-    fusedLocationProviderClient: FusedLocationProviderClient
+    fusedLocationProviderClient: FusedLocationProviderClient,
+    bluetoothServiceManager: BluetoothServiceManager
 ) {
 
     val coroutineScope: CoroutineScope = rememberCoroutineScope()

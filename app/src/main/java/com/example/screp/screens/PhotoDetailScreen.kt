@@ -1,6 +1,7 @@
 package com.example.screp.screens
 
 import android.graphics.BitmapFactory
+import android.os.Environment
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.screp.R
+import com.example.screp.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavItem
 import com.example.screp.data.Photo
 import com.example.screp.viewModels.PhotoAndMapViewModel
@@ -26,19 +28,27 @@ import java.io.BufferedInputStream
 import java.io.File
 
 @Composable
-fun PhotoDetailScreen(navController: NavHostController, photoName: String?, photoAndMapViewModel: PhotoAndMapViewModel) {
-
+fun PhotoDetailScreen(navController: NavHostController,
+                      photoName: String?,
+                      photoAndMapViewModel: PhotoAndMapViewModel,
+                      bluetoothServiceManager: BluetoothServiceManager,
+                      imgPath: File?
+    ) {
 
     val photo = photoName?.let { photoAndMapViewModel.getPhotoByName(it).observeAsState() }
 
+    Log.d("BT_LOG", "in photo detail: bt service " + bluetoothServiceManager.toString())
+    Log.d("BT_LOG", "in photo detail: img path" + imgPath.toString())
 
-    Box(
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.fillMaxSize(),
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+
             Image(
-                BitmapFactory.decodeStream(BufferedInputStream(File("/storage/emulated/0/Android/data/com.example.screp/files/Pictures/" + photoName).inputStream()))
+                BitmapFactory.decodeStream(BufferedInputStream(File("${imgPath}/${photoName}").inputStream()))
                     .asImageBitmap(),
                 null,
                 modifier = Modifier
@@ -65,5 +75,5 @@ fun PhotoDetailScreen(navController: NavHostController, photoName: String?, phot
                 )
             }
         }
-    }
+
 }
