@@ -1,6 +1,7 @@
 package com.example.screp.helpers
 
 import android.util.Log
+import androidx.compose.ui.text.buildAnnotatedString
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -9,15 +10,49 @@ class CalendarUtil {
 
     //get the current time and store as Long
     fun getCurrentTime(): Long {
-        Log.d("SENSOR_LOG", "current time: ${Calendar.getInstance().time.time}")
-        return Calendar.getInstance().time.time
+        return calendar.time.time
     }
 
-    fun convertLongToTime(time: Long): String {
+    // get today's date as string
+    fun getTodayDate(): String {
+        val currentDate = getCurrentTime()
+        return SimpleDateFormat("yyyy-MM-dd").format(currentDate)
+    }
+
+
+    // get calculated date by time delta:
+    fun getCalculatedDate(dateFormat: String = "yyyy-MM-dd", days: Int): String? {
+        val cal = Calendar.getInstance()
+        val format = SimpleDateFormat(dateFormat)
+        cal.add(Calendar.DAY_OF_YEAR, days)
+        return format.format(cal.timeInMillis)
+    }
+
+
+    // Format time value as Long to formatted date and time string
+    fun convertLongToTime(format: String = "yyyy.MM.dd HH:mm", time: Long): String {
         val date = Date(time)
-        val format = SimpleDateFormat("yyyy.MM.dd HH:mm")
+        val format = SimpleDateFormat(format)
         return format.format(date)
     }
+
+    // Format time for record card
+    fun formatTimeForRecordCard(startTime: Long, endTime: Long): String{
+        var dateString = "${convertLongToTime(time=startTime)} - ${convertLongToTime(time=endTime)}"
+        val startTimeDateString = convertLongToTime("yyyy.MM.dd", startTime)
+        val endTimeDateString = convertLongToTime("yyyy.MM.dd", endTime)
+        if (startTimeDateString == endTimeDateString){
+            dateString = buildAnnotatedString {
+                append(startTimeDateString)
+                append("\n")
+                append(convertLongToTime("HH:mm", startTime))
+                append("-")
+                append(convertLongToTime("HH:mm", endTime))
+            }.toString()
+        }
+        return dateString
+    }
+
 
     //get the beginning of a given date
     fun getCurrentDateStart(givenDate: String? = null): Long {

@@ -1,4 +1,4 @@
-package com.example.screp.screens.settings
+package com.example.screp.screens.settingsScreen
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager

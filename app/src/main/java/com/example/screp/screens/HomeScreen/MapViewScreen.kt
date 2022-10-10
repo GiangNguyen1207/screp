@@ -1,11 +1,10 @@
-package com.example.screp.screens.HomeScreen
+package com.example.screp.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import com.example.screp.screens.GoogleMap
-import com.example.screp.screens.RecordStepCountComponent
+import com.example.screp.services.SensorDataManager
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import com.example.screp.viewModels.StepCountViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -14,7 +13,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 fun MapViewScreen(navController: NavHostController,
                   photoAndMapViewModel: PhotoAndMapViewModel,
                   stepCountViewModel: StepCountViewModel,
-                  fusedLocationProviderClient: FusedLocationProviderClient) {
+                  fusedLocationProviderClient: FusedLocationProviderClient,
+                  dataManager: SensorDataManager
+) {
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(
@@ -25,6 +26,6 @@ fun MapViewScreen(navController: NavHostController,
             GoogleMap(navController,fusedLocationProviderClient, photoAndMapViewModel)
         }
 
-        RecordStepCountComponent(stepCountViewModel)
+        RecordStepCountComponent(stepCountViewModel, dataManager)
     }
 }

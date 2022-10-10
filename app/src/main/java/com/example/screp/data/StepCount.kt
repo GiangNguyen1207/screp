@@ -10,7 +10,11 @@ data class StepCount(
     val uid: Long,
     var startTime: Long,
     var endTime: Long,
-    var total: Int
+    var total: Int,
+    var trackingTimeInSeconds: Long = (endTime - startTime)/1000
 ) {
-    override fun toString() = "Start time: ${CalendarUtil().convertLongToTime(startTime)}. End time: ${CalendarUtil().convertLongToTime(endTime)}. Total steps are: $total"
+    override fun toString() = "Start time: ${CalendarUtil().convertLongToTime(time=startTime)}. " +
+            "End time: ${CalendarUtil().convertLongToTime(time=endTime)}." +
+            "Total tracking time: ${trackingTimeInSeconds} seconds" +
+            " Total steps: $total"
 }

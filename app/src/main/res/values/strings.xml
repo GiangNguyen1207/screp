@@ -10,4 +10,6 @@
     <string name="set_label_notification">Set notification time</string>
     <string name="back">Back</string>
     <string name="save">Save</string>
+    <string name="recordcard_title">Steps</string>
+    <string name="recordList_title">All activities</string>
 </resources>

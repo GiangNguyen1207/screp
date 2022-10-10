@@ -1,7 +1,6 @@
 package com.example.screp.bottomNavigation
 
 import android.os.Build
-import android.preference.PreferenceDataStore
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.datastore.core.DataStore
@@ -10,15 +9,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.screp.data.Settings
-import com.example.screp.screens.HomeScreen.MapViewScreen
 import com.example.screp.screens.PhotosScreen
-import com.example.screp.screens.RecordStepCountComponent
 import com.example.screp.screens.weatherScreen.WeatherScreen
 import com.example.screp.viewModels.StepCountViewModel
 import com.example.screp.viewModels.WeatherViewModel
 import com.example.screp.screens.*
-import com.example.screp.screens.settings.SettingEditScreen
-import com.example.screp.screens.settings.SettingScreen
+import com.example.screp.screens.settingsScreen.SettingEditScreen
+import com.example.screp.screens.settingsScreen.SettingScreen
+import com.example.screp.services.SensorDataManager
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import kotlinx.coroutines.flow.Flow
@@ -33,6 +31,7 @@ fun NavigationGraph(
     photoAndMapViewModel: PhotoAndMapViewModel,
     imgPath: File?,
     fusedLocationProviderClient: FusedLocationProviderClient,
+    dataManager: SensorDataManager,
     preferenceDataStore: DataStore<Preferences>,
     settings: Flow<Settings>,
     STEP_GOAL: Preferences.Key<String>,
@@ -44,7 +43,8 @@ fun NavigationGraph(
                 navController = navController,
                 photoAndMapViewModel = photoAndMapViewModel,
                 stepCountViewModel = stepCountViewModel,
-                fusedLocationProviderClient = fusedLocationProviderClient
+                fusedLocationProviderClient = fusedLocationProviderClient,
+                dataManager = dataManager
             )
         }
         composable(BottomNavItem.Graph.screen_route) {
