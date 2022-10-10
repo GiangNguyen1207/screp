@@ -2,8 +2,10 @@ package com.example.screp
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -189,7 +191,14 @@ class MainActivity : ComponentActivity() {
             Manifest.permission.BLUETOOTH_CONNECT
         ))
 
+        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+        registerReceiver(bluetoothServiceManager.receiver, filter)
     }
 
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(bluetoothServiceManager.receiver)
+    }
 
 }

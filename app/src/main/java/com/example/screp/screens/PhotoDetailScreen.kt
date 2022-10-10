@@ -1,5 +1,6 @@
 package com.example.screp.screens
 
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -8,11 +9,10 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.screp.R
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 import java.io.BufferedInputStream
 import java.io.File
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PhotoDetailScreen(
         navController: NavHostController,
@@ -45,8 +47,7 @@ fun PhotoDetailScreen(
     val context = LocalContext.current
     val photo = photoName?.let { photoAndMapViewModel.getPhotoByName(it).observeAsState() }
 
-    Log.d("BT_LOG", "in photo detail: bt service " + bluetoothServiceManager.toString())
-//    Log.d("BT_LOG", "in photo detail: img path" + imgPath.toString())
+    var sharingStarted by remember { mutableStateOf(false) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -85,15 +86,16 @@ fun PhotoDetailScreen(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_return),
                     contentDescription = "",
-                    modifier = Modifier.clip(CircleShape).fillMaxSize()
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .fillMaxSize()
                 )
             }
             Button(
                 onClick = {
                     Log.d("BT_LOG", "photo details: BT adapter"+ bluetoothServiceManager.bluetoothAdapter.toString())
-                    bluetoothServiceManager.bluetoothAdapter.bluetoothLeScanner.let { scan ->
-                        bluetoothServiceManager.scanDevices(scan, context)
-                    }
+                    bluetoothServiceManager.scanDevices(context)
+                    sharingStarted = true
                 },
                 modifier = Modifier
                     .size(50.dp)
@@ -103,13 +105,15 @@ fun PhotoDetailScreen(
             ){
                 Icon(painter = painterResource(id = R.drawable.ic_share),
                     contentDescription = stringResource(R.string.share),
-                    modifier = Modifier.clip(CircleShape).fillMaxSize()
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .fillMaxSize()
                 )
             }
         }
-
-
-        ShowDevices(bluetoothServiceManager)
+        if (sharingStarted){
+            ShowDevices(bluetoothServiceManager)
+        }
     }
 
 }
@@ -118,14 +122,49 @@ fun PhotoDetailScreen(
 @Composable
 fun ShowDevices(model: BluetoothServiceManager) {
     val context = LocalContext.current
-    val value: List<ScanResult>? by model.scanResults.observeAsState(null)
+    val devicesPaired: List<BluetoothDevice>? by model.scanResultsPaired.observeAsState(null)
+    val devicesFound: List<BluetoothDevice>? by model.scanResultsFound.observeAsState(null)
+
     val fScanning: Boolean by model.fScanning.observeAsState(false)
-    Column (modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(if (fScanning) "Scanning" else "Not scanning")
-        Text(if (value?.size ==0) "no devices" else if (value == null) "" else "found ${value?.size}")
-        value?.forEach {
-            Text("Device: ${it.device.name} ${it.device}")
+    Text(if (fScanning) "Scanning" else "")
+    ListDevices(type = "Paired", listDevices = devicesPaired)
+    ListDevices(type = "Found", listDevices = devicesFound)
+
+}
+
+@Composable
+fun ListDevices(type: String, listDevices: List<BluetoothDevice>?){
+    Column (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("${type} devices", style = MaterialTheme.typography.h5)
+        Text(
+            buildAnnotatedString {
+                if (listDevices?.size == 0 || listDevices == null ){
+                    append("No devices ${type.lowercase()}.")
+                    if (type == "Paired"){
+                        append("Please pair a device.")
+                    }
+                }
+                else {
+                    append("${listDevices?.size} ")
+                    append(if (listDevices?.size > 1) "devices" else "device")
+                    append(" ${type.lowercase()}")
+                }}.toString())
+
+        listDevices?.forEach {
+            Text("Device: ${it.name} ${it.address}",
+                modifier = Modifier
+                    .padding(5.dp)
+                    .selectable(true,
+                        onClick = {
+                            Log.d("BT_LOG", "selected item on list ${it.uuids}")
+                        }
+                    )
+            )
         }
     }
 }
