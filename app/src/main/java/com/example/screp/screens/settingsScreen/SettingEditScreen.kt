@@ -54,7 +54,7 @@ fun SettingEditScreen(
     val savedSettings = settings.collectAsState(initial = Settings())
     var totalStepsGoal by remember { mutableStateOf("") }
     var notificationTime by remember { mutableStateOf("") }
-    val notificationManager = NotificationManager(context, notificationTime)
+    val notificationManager = NotificationManager(context, savedSettings.value.notificationTime)
 
     val timePickerDialog = TimePickerDialog(
         context,
