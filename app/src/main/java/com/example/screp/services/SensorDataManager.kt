@@ -1,18 +1,15 @@
-package com.example.screp.sensorService
+package com.example.screp.services
 
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.screp.data.StepCount
 import com.example.screp.helpers.CalendarUtil
-import kotlinx.coroutines.channels.Channel
 
 class SensorDataManager (context: Context): SensorEventListener {
 

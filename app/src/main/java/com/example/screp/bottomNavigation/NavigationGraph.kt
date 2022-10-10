@@ -10,7 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.screp.data.Settings
-import com.example.screp.screens.MapViewScreen
+import com.example.screp.screens.HomeScreen.MapViewScreen
 import com.example.screp.screens.PhotosScreen
 import com.example.screp.screens.RecordStepCountComponent
 import com.example.screp.screens.weatherScreen.WeatherScreen
