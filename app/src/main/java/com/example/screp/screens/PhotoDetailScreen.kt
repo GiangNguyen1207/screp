@@ -7,11 +7,7 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Environment
 import android.util.Log
-import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
+
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
@@ -23,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -50,13 +47,11 @@ fun PhotoDetailScreen(
     ) {
     val context = LocalContext.current
     val photo = photoName?.let { photoAndMapViewModel.getPhotoByName(it).observeAsState() }
-    Log.d("BT_LOG", imgPath.toString())
 
     var sharingStarted by remember { mutableStateOf(false) }
 
     val imageInputStream = BitmapFactory.decodeStream(BufferedInputStream(File("${imgPath}/${photoName}").inputStream()))
         .asImageBitmap()
-
 
 
     Column(
@@ -84,6 +79,7 @@ fun PhotoDetailScreen(
             modifier = Modifier.fillMaxWidth()){
             Button(
                 onClick = {
+                    bluetoothServiceManager.stopTimerJob()
                     navController.navigate(BottomNavItem.Photos.screen_route)
                 },
                 modifier = Modifier
@@ -121,14 +117,14 @@ fun PhotoDetailScreen(
             }
         }
         if (sharingStarted){
-            ShowDevices(bluetoothServiceManager)
+            ShowDevices(bluetoothServiceManager, imageInputStream)
         }
     }
 
 }
 
 @Composable
-fun ShowDevices(model: BluetoothServiceManager) {
+fun ShowDevices(model: BluetoothServiceManager, imgBitmap: ImageBitmap) {
     val context = LocalContext.current
     val devicesPaired: List<BluetoothDevice>? by model.scanResultsPaired.observeAsState(null)
     Log.d("BT_LOG", "devices paired ${devicesPaired?.size}")
@@ -137,13 +133,14 @@ fun ShowDevices(model: BluetoothServiceManager) {
     Text(if(fScanning) "Scanning..." else "")
 
 
-    ListDevices(type = "Paired", listDevices = devicesPaired, model)
-    ListDevices(type = "Found", listDevices = devicesFound, model)
+    ListDevices(type = "Paired", listDevices = devicesPaired, model, imgBitmap)
+    ListDevices(type = "Found", listDevices = devicesFound, model, imgBitmap)
 
 }
 
 @Composable
-fun ListDevices(type: String, listDevices: List<BluetoothDevice>?, bluetoothServiceManager: BluetoothServiceManager){
+fun ListDevices(type: String, listDevices: List<BluetoothDevice>?, bluetoothServiceManager: BluetoothServiceManager,
+                imgBitmap: ImageBitmap){
     val context = LocalContext.current
 
     var listSize by remember{ mutableStateOf(0)}
@@ -180,8 +177,16 @@ fun ListDevices(type: String, listDevices: List<BluetoothDevice>?, bluetoothServ
                     .padding(5.dp)
                     .selectable(true,
                         onClick = {
-                            Log.d("BT_LOG", "selected item on list ${it.name}")
-                            bluetoothServiceManager.pairDevices(device = it)
+                            Log.d("BT_TRANSFER", "selected item on list ${it.name}")
+                            Log.d("BT_TRANSFER", "selected item on list uuid ${it.uuids.size}")
+                            it.uuids.forEach { it -> Log.d("BT_TRANSFER", "uuid item: ${it.toString()} uuid: ${it.uuid}" ) }
+
+                            if (type == "Found"){
+                                bluetoothServiceManager.pairDevices(device = it)
+                            }
+                            if (type == "Paired"){
+                                bluetoothServiceManager.handleImageTransfer(imgBitmap = imgBitmap, device = it)
+                            }
                         }
                     )
             )

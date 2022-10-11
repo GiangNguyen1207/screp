@@ -160,7 +160,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun getBluetoothPermission(){
+    fun getBluetoothPermission(){
         // Get BT permissions
         takePermissions =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
