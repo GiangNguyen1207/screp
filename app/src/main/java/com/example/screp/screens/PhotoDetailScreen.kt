@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Environment
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -25,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.screp.MainActivity
 import com.example.screp.R
 import com.example.screp.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavItem
@@ -125,15 +127,20 @@ fun ShowDevices(model: BluetoothServiceManager) {
     val devicesPaired: List<BluetoothDevice>? by model.scanResultsPaired.observeAsState(null)
     val devicesFound: List<BluetoothDevice>? by model.scanResultsFound.observeAsState(null)
 
+    if (devicesPaired?.size == 0 || devicesPaired == null) {
+        Toast.makeText(context, "Please pair a device to continue", Toast.LENGTH_SHORT).show()
+
+    }
     val fScanning: Boolean by model.fScanning.observeAsState(false)
     Text(if (fScanning) "Scanning" else "")
-    ListDevices(type = "Paired", listDevices = devicesPaired)
-    ListDevices(type = "Found", listDevices = devicesFound)
+
+    ListDevices(type = "Paired", listDevices = devicesPaired, model)
+    ListDevices(type = "Found", listDevices = devicesFound, model)
 
 }
 
 @Composable
-fun ListDevices(type: String, listDevices: List<BluetoothDevice>?){
+fun ListDevices(type: String, listDevices: List<BluetoothDevice>?, bluetoothServiceManager: BluetoothServiceManager){
     Column (
         modifier = Modifier
             .fillMaxWidth()
@@ -146,7 +153,7 @@ fun ListDevices(type: String, listDevices: List<BluetoothDevice>?){
                 if (listDevices?.size == 0 || listDevices == null ){
                     append("No devices ${type.lowercase()}.")
                     if (type == "Paired"){
-                        append("Please pair a device.")
+                        append(" Please pair a device.")
                     }
                 }
                 else {
@@ -162,6 +169,7 @@ fun ListDevices(type: String, listDevices: List<BluetoothDevice>?){
                     .selectable(true,
                         onClick = {
                             Log.d("BT_LOG", "selected item on list ${it.uuids}")
+                            bluetoothServiceManager.pairDevices()
                         }
                     )
             )

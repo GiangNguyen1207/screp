@@ -3,6 +3,7 @@ package com.example.screp
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.companion.CompanionDeviceManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -61,23 +62,24 @@ class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var dataManager: SensorDataManager
 
+
     lateinit var takePermissions: ActivityResultLauncher<Array<String>>
     lateinit var takeResultLauncher: ActivityResultLauncher<Intent>
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         dataManager = SensorDataManager(this)
 
         super.onCreate(savedInstanceState)
 
-        bluetoothServiceManager = BluetoothServiceManager(this)
+        bluetoothServiceManager = BluetoothServiceManager(this, this)
         hasLocationPermissions()
         getActivityPermission()
 
         // initiate bluetoothService
         bluetoothServiceManager.init()
         getBluetoothPermission()
+
 
 
         stepCountViewModel = StepCountViewModel(application)
@@ -191,6 +193,7 @@ class MainActivity : ComponentActivity() {
             Manifest.permission.BLUETOOTH_CONNECT
         ))
 
+        // Register for broadcasts when a device is discovered.
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
         registerReceiver(bluetoothServiceManager.receiver, filter)
     }
