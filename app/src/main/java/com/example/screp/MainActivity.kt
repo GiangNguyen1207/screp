@@ -65,6 +65,8 @@ class MainActivity : ComponentActivity() {
 
     lateinit var takePermissions: ActivityResultLauncher<Array<String>>
     lateinit var takeResultLauncher: ActivityResultLauncher<Intent>
+    lateinit var pairPermissionResultLauncher: ActivityResultLauncher<Intent>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -180,9 +182,9 @@ class MainActivity : ComponentActivity() {
         takeResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult(),
             ActivityResultCallback{
                     result -> if (result.resultCode == RESULT_OK){
-                Log.d("DBG result callback ok", " ${result.resultCode}")
+                Log.d("BT_LOG", "activity result callback ${result.resultCode}")
             } else {
-                Log.d("DBG result callback NOT OK", " ${result.resultCode}")
+                Log.d("BT_LOG", "activity result callback ${result.resultCode}")
             }
             })
 
@@ -196,6 +198,7 @@ class MainActivity : ComponentActivity() {
         // Register for broadcasts when a device is discovered.
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
         registerReceiver(bluetoothServiceManager.receiver, filter)
+
     }
 
 

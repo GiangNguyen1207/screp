@@ -1,44 +1,32 @@
 package com.example.screp.bluetoothService
 
-import android.Manifest
 import android.app.Activity
-import android.app.Activity.RESULT_OK
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothClass
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
-import android.bluetooth.le.BluetoothLeScanner
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings
-import android.companion.AssociationRequest
 import android.companion.BluetoothDeviceFilter
-import android.companion.BluetoothLeDeviceFilter
 import android.companion.CompanionDeviceManager
 import android.content.*
 import android.content.Context.BLUETOOTH_SERVICE
 import android.content.Context.COMPANION_DEVICE_SERVICE
-import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.core.app.ActivityCompat.startIntentSenderForResult
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
+import java.util.regex.Pattern
 
 
 class BluetoothServiceManager (context: Context, activity: Activity): ViewModel() {
+
+    companion object Config{
+        const val SCAN_PERIOD: Long = 5000
+    }
+
+    val scope = CoroutineScope(Dispatchers.Default)
 
     private val context = context
     private val activity = activity
@@ -65,7 +53,14 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
         if (bluetoothAdapter == null) {
             Toast.makeText(context, "Device doesn't support Bluetooth", Toast.LENGTH_SHORT).show()
         }
+        val timerJob = scope.launch {
+            while (isActive){
+                scanPairedDevices(context)
+                delay(1000L)
+            }
+        }
     }
+
 
     // Create a BroadcastReceiver for ACTION_FOUND.
     val receiver = object : BroadcastReceiver(){
@@ -94,31 +89,43 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
     }
 
 
-    fun pairDevices(context: Context = this.context){
+    fun pairDevices(context: Context = this.context, device: BluetoothDevice){
         deviceManager =  context.getSystemService(COMPANION_DEVICE_SERVICE) as CompanionDeviceManager
+        val deviceFilter: BluetoothDeviceFilter = BluetoothDeviceFilter.Builder()
+            .setNamePattern(Pattern.compile(device.name))
+            .build()
+
 
         // Create pairing request
-        val pairingRequest: AssociationRequest =
-            AssociationRequest.Builder()
-                .setSingleDevice(true)
-                .build()
-        deviceManager.associate(pairingRequest,
-            object : CompanionDeviceManager.Callback(){
-                override fun onDeviceFound(p0: IntentSender?) {
-                    activity.startIntentSenderForResult(p0,
-                        SELECT_DEVICE_REQUEST_CODE, null, 0, 0, 0)
-                }
-                override fun onFailure(p0: CharSequence?) {
-                    Toast.makeText(context, "Failed to pair", Toast.LENGTH_SHORT).show()
-                }
-            }, null)
+        // TODO: Check problem with intent if have time, if not then leave it
+//        val pairingRequest: AssociationRequest =
+//            AssociationRequest.Builder()
+//                .addDeviceFilter(deviceFilter)
+//                .setSingleDevice(true)
+//                .build()
+//        deviceManager.associate(pairingRequest,
+//            object : CompanionDeviceManager.Callback(){
+//                override fun onDeviceFound(p0: IntentSender?) {
+//                    activity.startIntentSenderForResult(p0,
+//                        SELECT_DEVICE_REQUEST_CODE, null, 0, 0, 0)
+//                }
+//                override fun onFailure(p0: CharSequence?) {
+//                    Toast.makeText(context, "Failed to pair", Toast.LENGTH_SHORT).show()
+//                }
+//            }, null)
+
+        try {
+            device.createBond()
+            scanPairedDevices(context)
+        } catch (e: java.lang.Exception){
+            e.printStackTrace()
+        }
 
     }
 
-
     // Scan paired devices
-    fun scanDevices(context: Context) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun scanPairedDevices(context: Context) {
+        viewModelScope.launch {
             fScanning.postValue(true)
             val startDiscovery = bluetoothAdapter.startDiscovery()
             Log.d("BT_LOG", "BT device discovery")
