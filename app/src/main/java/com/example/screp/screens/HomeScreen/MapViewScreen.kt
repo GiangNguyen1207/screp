@@ -26,6 +26,11 @@ fun MapViewScreen(navController: NavHostController,
             GoogleMap(navController,fusedLocationProviderClient, photoAndMapViewModel)
         }
 
-        RecordStepCountComponent(stepCountViewModel, dataManager)
+        RecordStepCountComponent(
+            stepCountViewModel = stepCountViewModel,
+            dataManager = dataManager,
+            fusedLocationProviderClient = fusedLocationProviderClient,
+            photoAndMapViewModel = photoAndMapViewModel
+        )
     }
 }

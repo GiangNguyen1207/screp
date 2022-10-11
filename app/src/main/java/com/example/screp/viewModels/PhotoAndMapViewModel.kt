@@ -16,35 +16,80 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.example.screp.data.Photo
+import com.example.screp.data.Route
+import com.example.screp.data.RouteNumber
 import com.example.screp.database.AppDatabase
 import com.example.screp.repository.PhotoRepository
+import com.example.screp.repository.RouteRepository
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 class PhotoAndMapViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: PhotoRepository =
+    private val photoRepository: PhotoRepository =
         PhotoRepository(AppDatabase.get(application).photoDao())
+    private val routeRepository: RouteRepository =
+        RouteRepository(AppDatabase.get(application).RouteDao())
     private val context = getApplication<Application>().applicationContext
 
+    var travelRouteLocationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            locationResult ?: return
+            //loop through all the locations in the track
+            for (location in locationResult.locations) {
+                val dataStore = RouteNumber(context)
+                viewModelScope.launch(Dispatchers.Default){
+                    dataStore.getRouteNumber.collect { value ->
+                        if (value != null) {
+                            val route = Route(
+                                uid = 0,
+                                routeId = value.toInt(),
+                                latitude = location.latitude,
+                                longitude = location.longitude
+                            )
+                            insertRoute(route)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    val travelRouteLocationRequest = LocationRequest
+        .create()
+        .setInterval(1000)
+        .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+
+
+
+    fun getRoute(): LiveData<List<Route>> =
+        routeRepository.getRoute()
+
+    fun getRouteLatAndLong(routeId: Int): LiveData<List<LatLng>> =
+        routeRepository.getRouteLatAndLong(routeId)
+
+    fun insertRoute(route: Route) {
+        viewModelScope.launch(Dispatchers.Default) {
+            routeRepository.insertRoute(route)
+        }
+    }
 
     fun getPhotos(): LiveData<List<Photo>> =
-        repository.getPhotos()
+        photoRepository.getPhotos()
 
     fun getPhotoByName(photoName: String): LiveData<Photo> =
-        repository.getPhotoByName(photoName)
+        photoRepository.getPhotoByName(photoName)
 
     fun getPhotoByCity(cityName: String): LiveData<List<Photo>> =
-        repository.getPhotoByCity(cityName)
+        photoRepository.getPhotoByCity(cityName)
 
     fun insertPhoto(photo: Photo) {
         viewModelScope.launch(Dispatchers.Default) {
-            repository.insertPhoto(photo)
+            photoRepository.insertPhoto(photo)
         }
     }
 

@@ -31,6 +31,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.screp.bottomNavigation.BottomNavigation
 import com.example.screp.bottomNavigation.NavigationGraph
+import com.example.screp.data.RouteNumber
 import com.example.screp.data.Settings
 import com.example.screp.services.NotificationManager
 import com.example.screp.services.SensorDataManager
@@ -73,7 +74,6 @@ class MainActivity : ComponentActivity() {
             //ask for permission
             requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1)
         }
-
         stepCountViewModel = StepCountViewModel(application)
         weatherViewModel = WeatherViewModel()
         weatherViewModel.fetchWeatherData()
