@@ -105,10 +105,20 @@ class CalendarUtil {
     }
 
     fun getCurrentHour(): Int {
-        return calendar[Calendar.HOUR_OF_DAY]
+        return calendar.get(Calendar.HOUR_OF_DAY)
     }
 
     fun getCurrentMinute(): Int {
-        return calendar[Calendar.MINUTE]
+        return calendar.get(Calendar.MINUTE)
+    }
+
+    //receive time in string, ex "5:00", "18:05"
+    //return a Long Date Time
+    fun getDateTime(time: String): Long {
+        val timeArr = time.split(":")
+        calendar.set(Calendar.HOUR_OF_DAY, timeArr[0].toInt());
+        calendar.set(Calendar.MINUTE, timeArr[1].toInt());
+
+        return calendar.time.time;
     }
 }

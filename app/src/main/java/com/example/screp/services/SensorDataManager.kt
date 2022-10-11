@@ -1,4 +1,4 @@
-package com.example.screp.sensorService
+package com.example.screp.services
 
 import android.content.Context
 import android.hardware.Sensor
@@ -9,15 +9,10 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.screp.data.StepCount
 import com.example.screp.helpers.CalendarUtil
-import com.example.screp.helpers.Converter
 import kotlinx.coroutines.*
 
 // Handle sensor data in thread
@@ -50,7 +45,7 @@ class SensorDataManager (context: Context): SensorEventListener {
     var stepCountDTO: StepCount? = null
 
     private val mHandler: Handler = object :
-    Handler(Looper.getMainLooper()){
+        Handler(Looper.getMainLooper()){
         override fun handleMessage(msg: Message) {
             if (msg.what == 0){
                 stepCount = msg.obj as Int
@@ -80,7 +75,7 @@ class SensorDataManager (context: Context): SensorEventListener {
         // timer job to update session's tracking time
         val timerJob = scope.launch {
             while (isActive){
-               timerTask()
+                timerTask()
                 delay(1000L)
             }
         }

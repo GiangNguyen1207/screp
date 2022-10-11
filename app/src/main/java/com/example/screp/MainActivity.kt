@@ -1,7 +1,10 @@
 package com.example.screp
 
 import android.Manifest
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.datastore.core.DataStore
@@ -27,8 +31,10 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.screp.bottomNavigation.BottomNavigation
 import com.example.screp.bottomNavigation.NavigationGraph
+import com.example.screp.data.RouteNumber
 import com.example.screp.data.Settings
-import com.example.screp.sensorService.SensorDataManager
+import com.example.screp.services.NotificationManager
+import com.example.screp.services.SensorDataManager
 import com.example.screp.ui.theme.ScrepTheme
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import com.example.screp.viewModels.StepCountViewModel
@@ -60,13 +66,14 @@ class MainActivity : ComponentActivity() {
         hasPermissions()
         super.onCreate(savedInstanceState)
 
-        if(ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACTIVITY_RECOGNITION
+            ) == PackageManager.PERMISSION_DENIED
+        ) {
             //ask for permission
             requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1)
         }
-
-
         stepCountViewModel = StepCountViewModel(application)
         weatherViewModel = WeatherViewModel()
         weatherViewModel.fetchWeatherData()
@@ -89,12 +96,16 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val notificationTime =
+                        settings.collectAsState(initial = Settings()).value.notificationTime
+                    NotificationManager(context, notificationTime).setScheduledNotification()
 
                     Scaffold(
                         bottomBar = {
                             if (navBackStackEntry?.destination?.route != "edit") {
-                                BottomNavigation(navController = navController) }
+                                BottomNavigation(navController = navController)
                             }
+                        }
                     ) { innerPadding ->
                         Box(modifier = Modifier.padding(innerPadding)) {
                             NavigationGraph(

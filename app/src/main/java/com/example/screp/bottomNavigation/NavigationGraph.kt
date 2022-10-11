@@ -9,7 +9,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.screp.data.Settings
-import com.example.screp.screens.MapViewScreen
 import com.example.screp.screens.PhotosScreen
 import com.example.screp.screens.weatherScreen.WeatherScreen
 import com.example.screp.viewModels.StepCountViewModel
@@ -17,7 +16,7 @@ import com.example.screp.viewModels.WeatherViewModel
 import com.example.screp.screens.*
 import com.example.screp.screens.settingsScreen.SettingEditScreen
 import com.example.screp.screens.settingsScreen.SettingScreen
-import com.example.screp.sensorService.SensorDataManager
+import com.example.screp.services.SensorDataManager
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import kotlinx.coroutines.flow.Flow
