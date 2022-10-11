@@ -178,8 +178,8 @@ fun ListDevices(type: String, listDevices: List<BluetoothDevice>?, bluetoothServ
                     .selectable(true,
                         onClick = {
                             Log.d("BT_TRANSFER", "selected item on list ${it.name}")
-                            Log.d("BT_TRANSFER", "selected item on list uuid ${it.uuids.size}")
-                            it.uuids.forEach { it -> Log.d("BT_TRANSFER", "uuid item: ${it.toString()} uuid: ${it.uuid}" ) }
+//                            Log.d("BT_TRANSFER", "selected item on list uuid ${it.uuids.size}")
+//                            it.uuids.forEach { it -> Log.d("BT_TRANSFER", "uuid item: ${it.toString()} uuid: ${it.uuid}" ) }
 
                             if (type == "Found"){
                                 bluetoothServiceManager.pairDevices(device = it)
