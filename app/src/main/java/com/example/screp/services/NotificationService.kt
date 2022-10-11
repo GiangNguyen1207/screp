@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import com.example.screp.R
 import com.example.screp.data.Weather
 import com.example.screp.helpers.CalendarUtil
+import com.example.screp.viewModels.WeatherViewModel
 
 class NotificationService : BroadcastReceiver() {
     private val channelId: String = "notificationService"
@@ -27,6 +28,7 @@ class NotificationService : BroadcastReceiver() {
     private val clouds: MutableList<Long> = mutableListOf()
 
     private var notificationMessage: String = "Hello world"
+    //private val weatherViewModel = WeatherViewModel()
 
     override fun onReceive(p0: Context?, p1: Intent?) {
         try {
@@ -41,13 +43,14 @@ class NotificationService : BroadcastReceiver() {
     private fun createNotificationMessage() {
         //notificationMessage += "Thunderstorm: ${getTimeString(thunderstormTimeGroup)}\n"
         //notificationMessage += "Drizzle: ${getTimeString(drizzleTimeGroup)}\n"
-        //notificationMessage += "Rain: ${getTimeString(rainTimeGroup)}\n"
+        notificationMessage += "Rain: ${getTimeString(rainTimeGroup)}\n"
         //notificationMessage += "Snow: ${getTimeString(snowTimeGroup)}\n"
     }
 
 //    private fun sortWeatherCondition() {
-//        weatherData.value?.hourly?.forEach { hourlyWeather ->
-//            if (hourlyWeather.dt * 1000L in notificationTime until currentDateEnd) {
+//        weatherViewModel.fetchWeatherData()
+//        weatherViewModel.weatherData.value?.hourly?.forEach { hourlyWeather ->
+//            //if (hourlyWeather.dt * 1000L in notificationTime until currentDateEnd) {
 //                when (hourlyWeather.weather[0].main) {
 //                    "Thunderstorm" -> thunderstormTimeGroup.add(hourlyWeather.dt)
 //                    "Drizzle" -> drizzleTimeGroup.add(hourlyWeather.dt)
@@ -58,7 +61,7 @@ class NotificationService : BroadcastReceiver() {
 //                        print("no category found")
 //                    }
 //                }
-//            }
+//            //}
 //        }
 //    }
 
@@ -92,7 +95,7 @@ class NotificationService : BroadcastReceiver() {
 
     private fun notifyWeatherCondition(context: Context) {
         //sortWeatherCondition()
-        //createNotificationMessage()
+        createNotificationMessage()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -106,9 +109,6 @@ class NotificationService : BroadcastReceiver() {
                 context.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             notificationManager.createNotificationChannel(channel)
-
-            //Log.d("clouds", clouds.toString())
-            //Log.d("clouds string", getTimeString(clouds))
 
             val notification = NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.ic_notifications)
