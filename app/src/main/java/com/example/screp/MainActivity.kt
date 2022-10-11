@@ -96,10 +96,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val notificationTime =
-                        setting
-
-
-                    s.collectAsState(initial = Settings()).value.notificationTime
+                        settings.collectAsState(initial = Settings()).value.notificationTime
                     val workManager = WorkManager.getInstance(context)
                     val constraints = Constraints.Builder()
                         .setRequiredNetworkType(NetworkType.CONNECTED)

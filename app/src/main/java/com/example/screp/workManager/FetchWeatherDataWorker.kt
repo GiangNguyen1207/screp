@@ -3,12 +3,15 @@ package com.example.screp.workManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.icu.util.Calendar
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.screp.R
 import com.example.screp.data.HourlyWeather
+import com.example.screp.helpers.CalendarUtil
 import com.example.screp.repository.WeatherRepository
 
 class FetchWeatherDataWorker(
@@ -29,13 +32,14 @@ class FetchWeatherDataWorker(
     private val weatherRepository: WeatherRepository = WeatherRepository()
 
     override suspend fun doWork(): Result {
-
         return try {
             val weatherData = weatherRepository.fetchWeatherData()
-            sortWeatherCondition(weatherData.hourly)
-            val rainTimeString = getTimeString(rainTimeGroup)
-            notificationMessage += "Rain: $rainTimeString"
-            notifyWeatherCondition()
+            val testData = weatherData.hourly.filter { hourlyWeather -> hourlyWeather.dt >= 1665673200 && hourlyWeather.dt <= 1666087200 }
+            weatherData.hourly.forEach {
+                Log.d("test", it.toString())
+            }
+            sortWeatherCondition(testData)
+            //notifyWeatherCondition()
             Result.success()
         } catch (throwable: Throwable) {
             Result.failure()
@@ -44,6 +48,7 @@ class FetchWeatherDataWorker(
 
     private fun sortWeatherCondition(hourlyWeatherData: List<HourlyWeather>) {
         hourlyWeatherData.forEach { hourlyWeather ->
+            //Log.d("hourly weather", hourlyWeather.dt.toString())
             //if (hourlyWeather.dt * 1000L in notificationTime until currentDateEnd) {
             when (hourlyWeather.weather[0].main) {
                 "Thunderstorm" -> thunderstormTimeGroup.add(hourlyWeather.dt)
@@ -55,10 +60,21 @@ class FetchWeatherDataWorker(
                 }
             }
         }
+
+        notificationMessage += if (thunderstormTimeGroup.size != 0) "Thunderstorm: ${
+            getTimeString(
+                thunderstormTimeGroup
+            )
+        }"
+        else if (drizzleTimeGroup.size != 0) "Drizzle: ${getTimeString(drizzleTimeGroup)}"
+        else if (snowTimeGroup.size != 0) "Snow: ${getTimeString(snowTimeGroup)}"
+        else if (rainTimeGroup.size != 0) "Rain: ${getTimeString(rainTimeGroup)}"
+        else "Great news: Today weather is perfect for going out"
     }
 
     private fun getTimeString(weatherTimeGroup: List<Long>): String {
         val result = mutableListOf<String>()
+        val calendar = CalendarUtil()
         var count = 1
 
         if (weatherTimeGroup.isEmpty()) return ""
@@ -68,9 +84,13 @@ class FetchWeatherDataWorker(
             if (i == weatherTimeGroup.size || (weatherTimeGroup[i] - weatherTimeGroup[i - 1] != 3600L)) {
 
                 if (count == 1) {
-                    result.add(weatherTimeGroup[i - count].toString())
+                    result.add(calendar.getTime(weatherTimeGroup[i - count]))
                 } else {
-                    result.add(weatherTimeGroup[i - count].toString() + " - " + weatherTimeGroup[i - 1]);
+                    result.add(
+                        calendar.getTime(weatherTimeGroup[i - count]) + " - " + calendar.getTime(
+                            weatherTimeGroup[i - 1]
+                        )
+                    );
                 }
                 count = 1
             } else {

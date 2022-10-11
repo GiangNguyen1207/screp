@@ -27,17 +27,4 @@ class WeatherViewModel(application: Application) : ViewModel() {
             weatherData.postValue(data)
         }
     }
-
-    fun loadDataFromWorker() {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-        val fetchWeatherDataRequest = OneTimeWorkRequestBuilder<FetchWeatherDataWorker>()
-            .addTag(tag)
-            .setInitialDelay(1, TimeUnit.MINUTES)
-            .setConstraints(constraints)
-            .build()
-
-        workManager.enqueue(fetchWeatherDataRequest)
-    }
 }
