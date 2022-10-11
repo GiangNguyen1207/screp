@@ -52,7 +52,6 @@ class MainActivity : ComponentActivity() {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
         val STEP_GOAL = stringPreferencesKey("stepGoal")
         val NOTIFICATION_TIME = stringPreferencesKey("notificationTime")
-
     }
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -76,7 +75,6 @@ class MainActivity : ComponentActivity() {
         }
         stepCountViewModel = StepCountViewModel(application)
         weatherViewModel = WeatherViewModel()
-        weatherViewModel.fetchWeatherData()
         photoAndMapViewModel = PhotoAndMapViewModel(application)
         val imgPath = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         val context = this

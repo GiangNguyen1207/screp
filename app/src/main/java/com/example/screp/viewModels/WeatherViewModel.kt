@@ -7,15 +7,21 @@ import com.example.screp.data.Weather
 import com.example.screp.repository.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
-class WeatherViewModel : ViewModel() {
+class WeatherViewModel() : ViewModel() {
     private val weatherRepository: WeatherRepository = WeatherRepository()
     val weatherData = MutableLiveData<Weather>()
+    var currentLocation = MutableLiveData<String>()
 
-    fun fetchWeatherData() {
+    fun fetchWeatherData(latitude: Double, longitude: Double) {
         viewModelScope.launch(Dispatchers.IO) {
-            val data = weatherRepository.fetchWeatherData()
+            val data = weatherRepository.fetchWeatherData(latitude, longitude)
+            val geoCode = weatherRepository.fetchGeoCode(latitude, longitude)
+            val locale = Locale("", geoCode[0].country)
+
             weatherData.postValue(data)
+            currentLocation.postValue("${geoCode[0].name}, ${locale.displayCountry}")
         }
     }
 }

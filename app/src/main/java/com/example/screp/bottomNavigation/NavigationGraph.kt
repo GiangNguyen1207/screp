@@ -51,7 +51,7 @@ fun NavigationGraph(
             GraphScreen(stepCountViewModel = stepCountViewModel, settings = settings)
         }
         composable(BottomNavItem.Weather.screen_route) {
-            WeatherScreen(weatherViewModel)
+            WeatherScreen(weatherViewModel, photoAndMapViewModel, fusedLocationProviderClient)
         }
         composable(BottomNavItem.Photos.screen_route) {
             PhotosScreen(
