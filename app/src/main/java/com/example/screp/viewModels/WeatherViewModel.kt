@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
-class WeatherViewModel() : ViewModel() {
+class WeatherViewModel : ViewModel() {
     private val weatherRepository: WeatherRepository = WeatherRepository()
     val weatherData = MutableLiveData<Weather>()
     var currentLocation = MutableLiveData<String>()
