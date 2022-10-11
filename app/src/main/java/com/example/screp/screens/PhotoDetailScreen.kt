@@ -50,8 +50,14 @@ fun PhotoDetailScreen(
     ) {
     val context = LocalContext.current
     val photo = photoName?.let { photoAndMapViewModel.getPhotoByName(it).observeAsState() }
+    Log.d("BT_LOG", imgPath.toString())
 
     var sharingStarted by remember { mutableStateOf(false) }
+
+    val imageInputStream = BitmapFactory.decodeStream(BufferedInputStream(File("${imgPath}/${photoName}").inputStream()))
+        .asImageBitmap()
+
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -61,8 +67,7 @@ fun PhotoDetailScreen(
             .verticalScroll(rememberScrollState())
     ) {
         Image(
-            BitmapFactory.decodeStream(BufferedInputStream(File("${imgPath}/${photoName}").inputStream()))
-                .asImageBitmap(),
+            imageInputStream,
             null,
             modifier = Modifier
                 .rotate(90F)
@@ -98,7 +103,7 @@ fun PhotoDetailScreen(
             Button(
                 onClick = {
                     Log.d("BT_LOG", "photo details: BT adapter"+ bluetoothServiceManager.bluetoothAdapter.toString())
-                    bluetoothServiceManager.scanPairedDevices(context)
+                    bluetoothServiceManager.startTimerJob()
                     sharingStarted = true
                 },
                 modifier = Modifier
@@ -126,6 +131,7 @@ fun PhotoDetailScreen(
 fun ShowDevices(model: BluetoothServiceManager) {
     val context = LocalContext.current
     val devicesPaired: List<BluetoothDevice>? by model.scanResultsPaired.observeAsState(null)
+    Log.d("BT_LOG", "devices paired ${devicesPaired?.size}")
     val devicesFound: List<BluetoothDevice>? by model.scanResultsFound.observeAsState(null)
     val fScanning: Boolean by model.fScanning.observeAsState(false)
     Text(if(fScanning) "Scanning..." else "")
@@ -140,16 +146,19 @@ fun ShowDevices(model: BluetoothServiceManager) {
 fun ListDevices(type: String, listDevices: List<BluetoothDevice>?, bluetoothServiceManager: BluetoothServiceManager){
     val context = LocalContext.current
 
+    var listSize by remember{ mutableStateOf(0)}
+
     Column (
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        listSize = listDevices?.size ?: 0
         Text("${type} devices", style = MaterialTheme.typography.h5)
         Text(
             buildAnnotatedString {
-                if (listDevices?.size == 0 || listDevices == null ){
+                if (listSize == 0 || listDevices == null){
                     append("No devices ${type.lowercase()}.\n")
                     if (type == "Paired"){
                         append("Please pair a device.")

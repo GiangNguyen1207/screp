@@ -42,8 +42,8 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
     private val mResultsPaired = HashMap<String, BluetoothDevice>()
 
     lateinit var deviceManager: CompanionDeviceManager
-    private val SELECT_DEVICE_REQUEST_CODE = 0
 
+    private lateinit var timerJob: Job
 
     // Initiate the service, called in Main activity onCreate
     fun init(){
@@ -52,12 +52,6 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
         Log.d("BT_LOG", "BT Service: init")
         if (bluetoothAdapter == null) {
             Toast.makeText(context, "Device doesn't support Bluetooth", Toast.LENGTH_SHORT).show()
-        }
-        val timerJob = scope.launch {
-            while (isActive){
-                scanPairedDevices(context)
-                delay(1000L)
-            }
         }
     }
 
@@ -97,23 +91,6 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
 
 
         // Create pairing request
-        // TODO: Check problem with intent if have time, if not then leave it
-//        val pairingRequest: AssociationRequest =
-//            AssociationRequest.Builder()
-//                .addDeviceFilter(deviceFilter)
-//                .setSingleDevice(true)
-//                .build()
-//        deviceManager.associate(pairingRequest,
-//            object : CompanionDeviceManager.Callback(){
-//                override fun onDeviceFound(p0: IntentSender?) {
-//                    activity.startIntentSenderForResult(p0,
-//                        SELECT_DEVICE_REQUEST_CODE, null, 0, 0, 0)
-//                }
-//                override fun onFailure(p0: CharSequence?) {
-//                    Toast.makeText(context, "Failed to pair", Toast.LENGTH_SHORT).show()
-//                }
-//            }, null)
-
         try {
             device.createBond()
             scanPairedDevices(context)
@@ -125,6 +102,7 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
 
     // Scan paired devices
     fun scanPairedDevices(context: Context) {
+//        scanResultsPaired.postValue(listOf())
         viewModelScope.launch {
             fScanning.postValue(true)
             val startDiscovery = bluetoothAdapter.startDiscovery()
@@ -133,17 +111,32 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
                 Log.d("BT_LOG", "BT device discovery unsuccesful")
             }
             val pairedDevices = bluetoothAdapter.bondedDevices
-            Log.d("BT_LOG", "paired device: ${pairedDevices.size}")
+//            Log.d("BT_LOG", "paired device: ${pairedDevices.size}")
+            if (pairedDevices.size == 0 || pairedDevices == null){
+                scanResultsPaired.postValue(listOf())
+            }
+            else {
+                pairedDevices.forEach { it -> mResultsPaired[it.address] = it }
+                Log.d("BT_LOG", "mResults: ${mResultsPaired.size}")
+                Log.d("BT_LOG", "mResults: ${mResultsPaired.values}")
 
-            pairedDevices.forEach { it -> mResultsPaired[it.address] = it }
-            Log.d("BT_LOG", "mResults: ${mResultsPaired.size}")
-            Log.d("BT_LOG", "mResults: ${mResultsPaired.values}")
-
-            scanResultsPaired.postValue(mResultsPaired.values.toList())
-            Log.d("BT_LOG", "scan results: ${scanResultsPaired.value?.size}")
-
+                scanResultsPaired.postValue(mResultsPaired.values.toList())
+                Log.d("BT_LOG", "scan results: ${scanResultsPaired.value?.size}")
+            }
             fScanning.postValue(false)
         }
     }
 
+    fun startTimerJob(){
+        timerJob = scope.launch {
+            while (isActive){
+                scanPairedDevices(context)
+                delay(SCAN_PERIOD)
+            }
+        }
+    }
+
+    fun stopTimerJob(){
+        timerJob.cancel()
+    }
 }

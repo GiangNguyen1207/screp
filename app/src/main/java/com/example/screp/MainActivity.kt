@@ -205,6 +205,7 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(bluetoothServiceManager.receiver)
+        bluetoothServiceManager.stopTimerJob()
     }
 
 }
