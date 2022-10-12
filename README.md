@@ -81,7 +81,7 @@ cd Screp
 
 ```
 
-- [Open the project on Android studio] (https://developer.android.com/studio/projects/create-project#ImportAProject)
+- [Open the project on Android studio](https://developer.android.com/studio/projects/create-project#ImportAProject)
 
 
 ## Run project
