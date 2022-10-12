@@ -34,6 +34,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
+import com.example.screp.bluetoothService.BluetoothServer
 import com.example.screp.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavigation
 import com.example.screp.bottomNavigation.NavigationGraph
@@ -65,7 +66,6 @@ class MainActivity : ComponentActivity() {
 
     lateinit var takePermissions: ActivityResultLauncher<Array<String>>
     lateinit var takeResultLauncher: ActivityResultLauncher<Intent>
-    lateinit var pairPermissionResultLauncher: ActivityResultLauncher<Intent>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -199,6 +199,8 @@ class MainActivity : ComponentActivity() {
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
         registerReceiver(bluetoothServiceManager.receiver, filter)
 
+//        bluetoothServiceManager.server = BluetoothServer(this, bluetoothServiceManager.bluetoothAdapter)
+//        bluetoothServiceManager.server.start()
     }
 
 

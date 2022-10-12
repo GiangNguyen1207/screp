@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.screp.MainActivity
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -57,15 +58,8 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
     lateinit var deviceManager: CompanionDeviceManager
     lateinit var pairedDevice: BluetoothDevice
 
-//    lateinit var sendReceive: SendImage
-    var sharingStatusText = ""
-
-    val STATE_LISTENING = 1
-    val STATE_CONNECTING = 2
-    val STATE_CONNECTED = 3
-    val STATE_CONNECTION_FAILED = 4
-    val STATE_MESSAGE_RECEIVED = 5
-    private val MY_UUID = UUID.fromString("8989063a-c9af-463a-b3f1-f21d9b2b827b")
+    lateinit var sendReceive: SendReceive
+    lateinit var server: BluetoothServer
 
 
     private lateinit var timerJob: Job
@@ -78,7 +72,9 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
         if (bluetoothAdapter == null) {
             Toast.makeText(context, "Device doesn't support Bluetooth", Toast.LENGTH_SHORT).show()
         }
-        val server: BluetoothServer = BluetoothServer()
+
+        bluetoothAdapter.startDiscovery()
+        server = BluetoothServer(context, bluetoothAdapter)
         server.start()
 
     }
@@ -144,10 +140,11 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
             }
             else {
                 pairedDevices.forEach { it -> mResultsPaired[it.address] = it }
-
                 scanResultsPaired.postValue(mResultsPaired.values.toList())
+
             }
             fScanning.postValue(false)
+
         }
     }
 
@@ -169,8 +166,7 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
         val client: BluetoothClient = BluetoothClient(device)
         client.start()
 
-
-//        Log.d("BT_TRANSFER", "send receive obj ${sendReceive}")
+        Log.d("BT_TRANSFER", "send receive obj ${sendReceive}")
 
         Log.d("BT_TRANSFER", "in handle image transfer")
         val bitmap = imgBitmap.asAndroidBitmap()
@@ -188,7 +184,7 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
                 tempArray =
                     Arrays.copyOfRange(imgBytes, i, Math.min(imgBytes.size, i + subArraySize))
                 Log.d("BT_TRANSFER", "temp array ${tempArray.size}")
-//                Log.d("BT_TRANSFER", "send receive obj ${sendReceive}")
+                Log.d("BT_TRANSFER", "send receive obj ${sendReceive}")
 //
 //                sendReceive!!.write(tempArray!!)
 //                Log.d("BT_TRANSFER", "passed send receive")
@@ -199,172 +195,5 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
     }
 
 
-    // Bluetooth connection as a server
-    inner class BluetoothServer(): Thread(){
-        private lateinit var mmServerSocket: BluetoothServerSocket
 
-        init {
-            try {
-                mmServerSocket = bluetoothAdapter?.listenUsingRfcommWithServiceRecord("BT_Service", MY_UUID)
-                Log.d("BT_TRANSFER", "BT server socket ${mmServerSocket}")
-            } catch (e: IOException){
-                Log.e("BT_TRANSFER", "BT server socket failed to init")
-
-                e.printStackTrace()
-            }
-        }
-
-        override fun run() {
-            Log.d("BT_TRANSFER", "run BT Server")
-            Log.d("BT_TRANSFER", "BLUETOOTH_CONNECT ${checkSelfPermission(context, android.Manifest.permission.BLUETOOTH_CONNECT)}")
-
-            // Keep listening until exception occurs or a socket is returned.
-            var shouldLoop = true
-            while (shouldLoop) {
-                val socket: BluetoothSocket? = try {
-                    Log.d("BT_TRANSFER", "server trying to get the socket" )
-                    mmServerSocket!!.accept()
-                } catch (e: Exception) {
-                    Log.e("BT_TRANSFER", "Socket's accept() method failed", e)
-                    shouldLoop = false
-                    null
-                }
-                Log.d("BT_TRANSFER", "got the socket ${socket}" )
-
-                socket?.also {
-                    Log.d("BT_TRANSFER", "got the socket" )
-                    val sendReceive = SendImage(it)
-                    sendReceive.start()
-                    mmServerSocket?.close()
-                    shouldLoop = false
-                }
-            }
-            Log.d("BT_TRANSFER", "shouldLoop ${shouldLoop}" )
-
-
-        }
-        // Closes the connect socket and causes the thread to finish.
-        fun cancel() {
-            try {
-                mmServerSocket?.close()
-            } catch (e: IOException) {
-                Log.e("BT_TRANSFER", "Could not close the connect socket", e)
-            }
-        }
-
-    }
-
-    inner class BluetoothClient(device: BluetoothDevice): Thread() {
-        private val mSocket = device.createRfcommSocketToServiceRecord(MY_UUID)
-
-        override fun run() {
-            Log.d("BT_TRANSFER", "client socket ${mSocket}")
-            Log.d("BT_TRANSFER", "client device ${mSocket.remoteDevice}")
-
-//            bluetoothAdapter?.cancelDiscovery()
-            Log.i("client", "Connecting")
-            mSocket?.let{ socket ->
-                socket.connect()
-                Log.d("BT_TRANSFER", "client socket connected ${socket.isConnected} ")
-
-            }
-
-        }
-    }
-
-     inner class SendImage(socket: BluetoothSocket): Thread(){
-        private lateinit var inputStream: InputStream
-        private lateinit var outputStream: OutputStream
-
-        var bluetoothSocket = socket
-         init {
-            var tempIn: InputStream? = null
-            var tempOut: OutputStream? = null
-
-            try {
-                tempIn = bluetoothSocket.inputStream
-                tempOut = bluetoothSocket.outputStream
-            } catch (e: IOException){
-                e.printStackTrace()
-            }
-            if (tempIn != null) {
-                inputStream = tempIn
-            }
-            if (tempOut != null) {
-                outputStream = tempOut
-            }
-        }
-
-         override fun run (){
-             var buffer: ByteArray = ByteArray(1024)
-             var numberOfBytes: Int = 0
-             var index: Int = 0
-             var flag: Boolean = true
-
-             while (true) {
-                 if (flag) {
-                     try {
-                         val temp = ByteArray(inputStream.available())
-                         if (inputStream.read(temp) > 0) {
-                             numberOfBytes = String(temp, Charsets.UTF_8).toInt()
-                             buffer = ByteArray(numberOfBytes)
-                             flag = false
-                         }
-                     } catch (e: IOException) {
-                         e.printStackTrace()
-                     }
-                 } else {
-                     try {
-                         val data = ByteArray(inputStream.available())
-                         val numbers = inputStream.read(data)
-                         System.arraycopy(data, 0, buffer, index, numbers)
-                         index = index + numbers
-                         if (index === numberOfBytes) {
-                             handler.obtainMessage(
-                                 STATE_MESSAGE_RECEIVED,
-                                 numberOfBytes,
-                                 -1,
-                                 buffer
-                             ).sendToTarget()
-                             flag = true
-                         }
-                     } catch (e: IOException) {
-                         e.printStackTrace()
-                     }
-                 }
-             }
-
-
-         }
-
-         fun write(bytes: ByteArray){
-             try {
-                 outputStream.write(bytes)
-                 outputStream.flush()
-                 Log.d("BT_TRANSFER", "writing done ${outputStream}")
-
-             }
-             catch (e: IOException){
-                 e.printStackTrace()
-                 Log.d("BT_TRANSFER", "failed to write")
-
-             }
-         }
-    }
-
-    // Message handler
-    private var handler: Handler = object: Handler(Looper.getMainLooper()) {
-        override fun handleMessage(msg: Message) {
-            when (msg.what) {
-                STATE_LISTENING -> sharingStatusText = "Listening"
-                STATE_CONNECTING -> sharingStatusText= "Connecting"
-                STATE_CONNECTED -> sharingStatusText = "Connected"
-                STATE_CONNECTION_FAILED -> sharingStatusText = "Connection Failed"
-                STATE_MESSAGE_RECEIVED -> {
-                    val readBuff = msg.obj as ByteArray
-                    val bitmap = BitmapFactory.decodeByteArray(readBuff, 0, msg.arg1)
-                }
-            }
-        }
-    }
 }
