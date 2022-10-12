@@ -50,7 +50,6 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
     lateinit var sendReceive: SendReceive
     lateinit var server: BluetoothServer
 
-
     private lateinit var timerJob: Job
 
     // Initiate the service, called in Main activity onCreate
@@ -62,9 +61,10 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
             Toast.makeText(context, "Device doesn't support Bluetooth", Toast.LENGTH_SHORT).show()
         }
 
-        bluetoothAdapter.startDiscovery()
-        server = BluetoothServer(context, bluetoothAdapter)
-        server.start()
+//        bluetoothAdapter.startDiscovery()
+//        server = BluetoothServer(activity, bluetoothAdapter)
+//        server.start()
+//        sendReceive = server.sendReceive
 
     }
 
@@ -75,14 +75,9 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
             val action: String = intent.action.toString()
             when(action) {
                 BluetoothDevice.ACTION_FOUND -> {
-                    // Discovery has found a device. Get the BluetoothDevice
-                    // object and its info from the Intent.
                     val device: BluetoothDevice? =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                        val deviceName = device?.name
-                        val deviceHardwareAddress = device?.address // MAC address
                         val deviceTypeIsSmartPhone = device?.bluetoothClass?.deviceClass == BluetoothClass.Device.PHONE_SMART
-//                        Log.d("BT_LOG", "broadcast receiver: " + deviceName + " .Is smart phone :" + deviceTypeIsSmartPhone )
 
                     // Filter smart phone
                         if (deviceTypeIsSmartPhone){
@@ -101,7 +96,6 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
         val deviceFilter: BluetoothDeviceFilter = BluetoothDeviceFilter.Builder()
             .setNamePattern(Pattern.compile(device.name))
             .build()
-
 
         // Create pairing request
         try {
@@ -134,6 +128,7 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
             }
             fScanning.postValue(false)
 
+
         }
     }
 
@@ -152,10 +147,11 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
 
     fun handleImageTransfer(imgBitmap: ImageBitmap, device: BluetoothDevice){
 
-        val client: BluetoothClient = BluetoothClient(device)
+        server = BluetoothServer(activity, bluetoothAdapter)
+        server.start()
+        val client = BluetoothClient(device)
         client.start()
-
-        Log.d("BT_TRANSFER", "send receive obj ${sendReceive}")
+//        Log.d("BT_TRANSFER", "send receive obj ${sendReceive}")
 
         Log.d("BT_TRANSFER", "in handle image transfer")
         val bitmap = imgBitmap.asAndroidBitmap()
@@ -173,12 +169,12 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
                 tempArray =
                     Arrays.copyOfRange(imgBytes, i, Math.min(imgBytes.size, i + subArraySize))
                 Log.d("BT_TRANSFER", "temp array ${tempArray.size}")
-                Log.d("BT_TRANSFER", "send receive obj ${sendReceive}")
-//
-//                sendReceive!!.write(tempArray!!)
-//                Log.d("BT_TRANSFER", "passed send receive")
-//
-//                i += subArraySize
+                Log.d("BT_TRANSFER", "send receive obj ${server.sendReceive}")
+
+                server.sendReceive!!.write(tempArray!!)
+                Log.d("BT_TRANSFER", "passed send receive")
+
+                i += subArraySize
             }
 
     }

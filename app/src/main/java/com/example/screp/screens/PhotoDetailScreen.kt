@@ -86,7 +86,9 @@ fun PhotoDetailScreen(
             modifier = Modifier.fillMaxWidth()){
             Button(
                 onClick = {
-                    bluetoothServiceManager.stopTimerJob()
+                    if (sharingStarted){
+                        bluetoothServiceManager.stopTimerJob()
+                    }
                     navController.navigate(BottomNavItem.Photos.screen_route)
                 },
                 modifier = Modifier

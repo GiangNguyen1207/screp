@@ -1,5 +1,6 @@
 package com.example.screp.services.bluetoothService
 
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothServerSocket
@@ -10,6 +11,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import com.example.screp.MainActivity
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -27,11 +29,12 @@ var sharingStatusText = ""
 
 
 // Bluetooth connection as a server
-class BluetoothServer(context: Context, bluetoothAdapter: BluetoothAdapter): Thread(){
-    private val context = context
+class BluetoothServer(activity: Activity, bluetoothAdapter: BluetoothAdapter): Thread(){
+    private val activity = activity
     private val bluetoothAdapter = bluetoothAdapter
 
     private lateinit var mServerSocket: BluetoothServerSocket
+    lateinit var sendReceive: SendReceive
 
     init {
         try {
@@ -46,38 +49,27 @@ class BluetoothServer(context: Context, bluetoothAdapter: BluetoothAdapter): Thr
 
     override fun run() {
         Log.d("BT_TRANSFER", "run BT Server")
-//        Log.d("BT_TRANSFER", "BLUETOOTH_CONNECT ${
-//            ContextCompat.checkSelfPermission(
-//                context,
-//                Manifest.permission.BLUETOOTH_CONNECT
-//            )
-//        }")
 
+        var socket: BluetoothSocket? = null
         // Keep listening until exception occurs or a socket is returned.
-        var shouldLoop = true
-        while (shouldLoop) {
-            val socket: BluetoothSocket? = try {
+        while (socket == null) {
+            try {
                 Log.d("BT_TRANSFER", "server trying to get the socket" )
-                Log.d("BT_TRANSFER", "BT server socket ${mServerSocket.toString()}")
-
-                mServerSocket.accept()
+                mServerSocket.accept(10000)
             } catch (e: Exception) {
                 Log.e("BT_TRANSFER", "Socket's accept() method failed", e)
-                shouldLoop = false
-                null
             }
             Log.d("BT_TRANSFER", "got the socket ${socket}" )
 
-            socket?.also {
+
+            if (socket != null){
                 Log.d("BT_TRANSFER", "got the socket" )
-                val sendReceive = SendReceive(it)
+                sendReceive = SendReceive(socket)
                 sendReceive.start()
                 mServerSocket?.close()
-                shouldLoop = false
+                break
             }
         }
-        Log.d("BT_TRANSFER", "shouldLoop ${shouldLoop}" )
-
 
     }
     // Closes the connect socket and causes the thread to finish.
@@ -93,18 +85,19 @@ class BluetoothServer(context: Context, bluetoothAdapter: BluetoothAdapter): Thr
 
 class BluetoothClient(device: BluetoothDevice): Thread() {
     private val mSocket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID)
+    lateinit var sendReceive: SendReceive
 
     override fun run() {
         Log.d("BT_TRANSFER", "client socket ${mSocket}")
         Log.d("BT_TRANSFER", "client device ${mSocket.remoteDevice}")
 
-//            bluetoothAdapter?.cancelDiscovery()
         Log.i("BT_TRANSFER", "client Connecting")
-        mSocket?.let{ socket ->
-            socket.connect()
-            Log.d("BT_TRANSFER", "client socket connected ${socket.isConnected} ")
 
-        }
+        this.mSocket.connect()
+        Log.d("BT_TRANSFER", "client socket connected ${mSocket.isConnected} ")
+        sendReceive = SendReceive(mSocket);
+        sendReceive.start()
+
 
     }
 }

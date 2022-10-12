@@ -3,6 +3,7 @@ package com.example.screp
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothServerSocket
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -38,6 +39,7 @@ import com.example.screp.bottomNavigation.NavigationGraph
 import com.example.screp.data.Settings
 import com.example.screp.services.NotificationManager
 import com.example.screp.services.SensorDataManager
+import com.example.screp.services.bluetoothService.MY_UUID
 import com.example.screp.ui.theme.ScrepTheme
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import com.example.screp.viewModels.StepCountViewModel
