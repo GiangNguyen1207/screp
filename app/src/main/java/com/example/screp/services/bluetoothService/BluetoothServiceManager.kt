@@ -47,7 +47,7 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
     lateinit var deviceManager: CompanionDeviceManager
     lateinit var pairedDevice: BluetoothDevice
 
-    lateinit var sendReceive: SendReceive
+    var sendReceive: SendReceive? = null
     lateinit var server: BluetoothServer
 
     private lateinit var timerJob: Job
@@ -61,10 +61,9 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
             Toast.makeText(context, "Device doesn't support Bluetooth", Toast.LENGTH_SHORT).show()
         }
 
-//        bluetoothAdapter.startDiscovery()
-//        server = BluetoothServer(activity, bluetoothAdapter)
-//        server.start()
-//        sendReceive = server.sendReceive
+        bluetoothAdapter.startDiscovery()
+        server = BluetoothServer(activity, bluetoothAdapter)
+        server.start()
 
     }
 
@@ -149,20 +148,26 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
 
         server = BluetoothServer(activity, bluetoothAdapter)
         server.start()
+
         val client = BluetoothClient(device)
         client.start()
-//        Log.d("BT_TRANSFER", "send receive obj ${sendReceive}")
 
-        Log.d("BT_TRANSFER", "in handle image transfer")
-        val bitmap = imgBitmap.asAndroidBitmap()
-        var oStream: ByteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 40, oStream)
-        val imgBytes: ByteArray = oStream.toByteArray()
+        if (server.sendReceive == null || client.sendReceive == null){
+            Toast.makeText(context, "Cannot set up connection for sharing", Toast.LENGTH_SHORT).show()
+            Log.d("BT_TRANSFER", "Not found any sendReceive service")
+        }
+        else {
+            sendReceive = server.sendReceive
+            Log.d("BT_TRANSFER", "in handle image transfer")
+            val bitmap = imgBitmap.asAndroidBitmap()
+            var oStream: ByteArrayOutputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 40, oStream)
+            val imgBytes: ByteArray = oStream.toByteArray()
 
-        Log.d("BT_TRANSFER", "img bytes total ${imgBytes.size} bytes")
+            Log.d("BT_TRANSFER", "img bytes total ${imgBytes.size} bytes")
 
 
-        val subArraySize = 400
+            val subArraySize = 400
             var i = 0
             while (i < imgBytes.size) {
                 var tempArray: ByteArray?
@@ -176,6 +181,7 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
 
                 i += subArraySize
             }
+        }
 
     }
 

@@ -34,7 +34,7 @@ class BluetoothServer(activity: Activity, bluetoothAdapter: BluetoothAdapter): T
     private val bluetoothAdapter = bluetoothAdapter
 
     private lateinit var mServerSocket: BluetoothServerSocket
-    lateinit var sendReceive: SendReceive
+    var sendReceive: SendReceive? = null
 
     init {
         try {
@@ -55,7 +55,7 @@ class BluetoothServer(activity: Activity, bluetoothAdapter: BluetoothAdapter): T
         while (socket == null) {
             try {
                 Log.d("BT_TRANSFER", "server trying to get the socket" )
-                mServerSocket.accept(10000)
+                mServerSocket.accept()
             } catch (e: Exception) {
                 Log.e("BT_TRANSFER", "Socket's accept() method failed", e)
             }
@@ -65,7 +65,7 @@ class BluetoothServer(activity: Activity, bluetoothAdapter: BluetoothAdapter): T
             if (socket != null){
                 Log.d("BT_TRANSFER", "got the socket" )
                 sendReceive = SendReceive(socket)
-                sendReceive.start()
+                sendReceive?.start()
                 mServerSocket?.close()
                 break
             }
@@ -85,7 +85,7 @@ class BluetoothServer(activity: Activity, bluetoothAdapter: BluetoothAdapter): T
 
 class BluetoothClient(device: BluetoothDevice): Thread() {
     private val mSocket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID)
-    lateinit var sendReceive: SendReceive
+    var sendReceive: SendReceive? = null
 
     override fun run() {
         Log.d("BT_TRANSFER", "client socket ${mSocket}")
@@ -93,12 +93,17 @@ class BluetoothClient(device: BluetoothDevice): Thread() {
 
         Log.i("BT_TRANSFER", "client Connecting")
 
-        this.mSocket.connect()
-        Log.d("BT_TRANSFER", "client socket connected ${mSocket.isConnected} ")
-        sendReceive = SendReceive(mSocket);
-        sendReceive.start()
+        try {
+            mSocket.connect()
+            Log.d("BT_TRANSFER", "client socket connected ${mSocket.isConnected} ")
+            sendReceive = SendReceive(mSocket)
+            sendReceive?.start()
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
 
-
+        sendReceive = SendReceive(mSocket)
+        sendReceive?.start()
     }
 }
 
