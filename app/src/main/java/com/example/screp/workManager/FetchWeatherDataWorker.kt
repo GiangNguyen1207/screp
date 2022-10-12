@@ -97,9 +97,7 @@ class FetchWeatherDataWorker(
         if (weatherTimeGroup.isEmpty()) return ""
 
         for (i in 1 until weatherTimeGroup.size + 1) {
-
             if (i == weatherTimeGroup.size || (weatherTimeGroup[i] - weatherTimeGroup[i - 1] != 3600L)) {
-
                 if (count == 1) {
                     result.add(calendar.getTime(weatherTimeGroup[i - count] * 1000L))
                 } else {
