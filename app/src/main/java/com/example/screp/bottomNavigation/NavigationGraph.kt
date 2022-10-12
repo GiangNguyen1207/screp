@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.screp.services.bluetoothService.BluetoothServiceManager
 import com.example.screp.data.Settings
 import com.example.screp.screens.PhotosScreen
 import com.example.screp.screens.weatherScreen.WeatherScreen
@@ -35,7 +36,8 @@ fun NavigationGraph(
     preferenceDataStore: DataStore<Preferences>,
     settings: Flow<Settings>,
     STEP_GOAL: Preferences.Key<String>,
-    NOTIFICATION_TIME: Preferences.Key<String>
+    NOTIFICATION_TIME: Preferences.Key<String>,
+    bluetoothServiceManager: BluetoothServiceManager
 ) {
     NavHost(navController, startDestination = BottomNavItem.Record.screen_route) {
         composable(BottomNavItem.Record.screen_route) {
@@ -58,7 +60,8 @@ fun NavigationGraph(
                 photoAndMapViewModel = photoAndMapViewModel,
                 imgPath = imgPath,
                 fusedLocationProviderClient = fusedLocationProviderClient,
-                navController = navController
+                navController = navController,
+                bluetoothServiceManager = bluetoothServiceManager
             )
         }
         composable(BottomNavItem.PhotoDetail.screen_route + "/{photoName}") {
@@ -66,7 +69,9 @@ fun NavigationGraph(
             PhotoDetailScreen(
                 navController = navController,
                 photoName = photoName,
-                photoAndMapViewModel = photoAndMapViewModel
+                photoAndMapViewModel = photoAndMapViewModel,
+                bluetoothServiceManager = bluetoothServiceManager,
+                imgPath = imgPath
             )
         }
         composable(BottomNavItem.Settings.screen_route) {
