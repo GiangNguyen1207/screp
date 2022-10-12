@@ -30,6 +30,7 @@ import androidx.work.*
 import com.example.screp.bottomNavigation.BottomNavigation
 import com.example.screp.bottomNavigation.NavigationGraph
 import com.example.screp.data.Settings
+import com.example.screp.helpers.CalendarUtil
 import com.example.screp.services.SensorDataManager
 import com.example.screp.ui.theme.ScrepTheme
 import com.example.screp.viewModels.PhotoAndMapViewModel
@@ -104,7 +105,10 @@ class MainActivity : ComponentActivity() {
                     val fetchWeatherDataRequest =
                         OneTimeWorkRequestBuilder<FetchWeatherDataWorker>()
                             .setConstraints(constraints)
-                            .setInitialDelay(10000L, TimeUnit.MILLISECONDS)
+                            .setInitialDelay(
+                                calculateTimeForWorkManager(notificationTime),
+                                TimeUnit.MILLISECONDS
+                            )
                             .build()
                     workManager.enqueue(fetchWeatherDataRequest)
 
@@ -151,5 +155,14 @@ class MainActivity : ComponentActivity() {
             Log.d("aaaaaa", "gps access")
         }
         return true
+    }
+
+    private fun calculateTimeForWorkManager(notificationTime: String): Long {
+        val notificationTimeInLong = CalendarUtil().getDateTime(notificationTime)
+        val currentTime = CalendarUtil().getCurrentTime()
+        val timeDifference = notificationTimeInLong - currentTime
+
+        if (timeDifference > 0) return timeDifference
+        return notificationTimeInLong + 86400000 - currentTime
     }
 }

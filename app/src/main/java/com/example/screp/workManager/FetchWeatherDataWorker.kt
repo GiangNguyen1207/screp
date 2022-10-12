@@ -34,12 +34,12 @@ class FetchWeatherDataWorker(
     override suspend fun doWork(): Result {
         return try {
             val weatherData = weatherRepository.fetchWeatherData()
-            val testData = weatherData.hourly.filter { hourlyWeather -> hourlyWeather.dt >= 1665673200 && hourlyWeather.dt <= 1666087200 }
-            weatherData.hourly.forEach {
-                Log.d("test", it.toString())
-            }
+            val currentTime = CalendarUtil().getCurrentTime()
+            val currentDateEnd = CalendarUtil().getCurrentDateEnd()
+            val testData =
+                weatherData.hourly.filter { hourlyWeather -> hourlyWeather.dt in currentTime..currentDateEnd }
             sortWeatherCondition(testData)
-            //notifyWeatherCondition()
+            notifyWeatherCondition()
             Result.success()
         } catch (throwable: Throwable) {
             Result.failure()
@@ -48,8 +48,6 @@ class FetchWeatherDataWorker(
 
     private fun sortWeatherCondition(hourlyWeatherData: List<HourlyWeather>) {
         hourlyWeatherData.forEach { hourlyWeather ->
-            //Log.d("hourly weather", hourlyWeather.dt.toString())
-            //if (hourlyWeather.dt * 1000L in notificationTime until currentDateEnd) {
             when (hourlyWeather.weather[0].main) {
                 "Thunderstorm" -> thunderstormTimeGroup.add(hourlyWeather.dt)
                 "Drizzle" -> drizzleTimeGroup.add(hourlyWeather.dt)
@@ -69,7 +67,7 @@ class FetchWeatherDataWorker(
         else if (drizzleTimeGroup.size != 0) "Drizzle: ${getTimeString(drizzleTimeGroup)}"
         else if (snowTimeGroup.size != 0) "Snow: ${getTimeString(snowTimeGroup)}"
         else if (rainTimeGroup.size != 0) "Rain: ${getTimeString(rainTimeGroup)}"
-        else "Great news: Today weather is perfect for going out"
+        else "Today weather is good for going out!"
     }
 
     private fun getTimeString(weatherTimeGroup: List<Long>): String {
@@ -84,11 +82,11 @@ class FetchWeatherDataWorker(
             if (i == weatherTimeGroup.size || (weatherTimeGroup[i] - weatherTimeGroup[i - 1] != 3600L)) {
 
                 if (count == 1) {
-                    result.add(calendar.getTime(weatherTimeGroup[i - count]))
+                    result.add(calendar.getTime(weatherTimeGroup[i - count] * 1000L))
                 } else {
                     result.add(
-                        calendar.getTime(weatherTimeGroup[i - count]) + " - " + calendar.getTime(
-                            weatherTimeGroup[i - 1]
+                        calendar.getTime(weatherTimeGroup[i - count] * 1000L) + " - " + calendar.getTime(
+                            weatherTimeGroup[i - 1] * 1000L
                         )
                     );
                 }
