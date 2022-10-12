@@ -6,13 +6,13 @@
 [![Platform][android-image]][android-url]
 
 # Screp
-A step-counter tracker with add-ins weather checking and picture sharing function.
+A step-counter with add-ins weather forecast and picture sharing function.
 
 Sensor-based Android Application Development group project at Metropolia UAS - Autumn 2022.
 
 <br  />
 
-### Walking is good and fun with Screp App
+### Walking is now getting better and more fun with Screp App
 
 <p  align="row">
 
