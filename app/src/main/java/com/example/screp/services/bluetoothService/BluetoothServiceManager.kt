@@ -153,7 +153,7 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
         client.start()
 
         if (server.sendReceive == null || client.sendReceive == null){
-            Toast.makeText(context, "Cannot set up connection for sharing", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Cannot set up connection for sharing", Toast.LENGTH_LONG).show()
             Log.d("BT_TRANSFER", "Not found any sendReceive service")
         }
         else {
