@@ -1,5 +1,6 @@
 package com.example.screp.network
 
+import com.example.screp.data.Geocode
 import com.example.screp.data.Weather
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -28,6 +29,13 @@ interface ApiService {
         @Query("exclude") exclude: String,
         @Query("appid") apiKey: String
     ): Weather
+
+    @GET("http://api.openweathermap.org/geo/1.0/reverse")
+    suspend fun fetchGeoCode(
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+        @Query("appid") apiKey: String
+    ): List<Geocode>
 }
 
 object WeatherApi {
