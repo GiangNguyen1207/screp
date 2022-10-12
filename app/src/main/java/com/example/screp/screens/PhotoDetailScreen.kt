@@ -2,7 +2,6 @@ package com.example.screp.screens
 
 import android.bluetooth.BluetoothDevice
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
@@ -30,36 +29,30 @@ import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
 import com.example.screp.BuildConfig
 import com.example.screp.R
-import com.example.screp.bluetoothService.BluetoothServiceManager
+import com.example.screp.services.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavItem
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import java.io.BufferedInputStream
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 
 @Composable
 fun PhotoDetailScreen(
-        navController: NavHostController,
-        photoName: String?,
-        photoAndMapViewModel: PhotoAndMapViewModel,
-        bluetoothServiceManager: BluetoothServiceManager,
-        imgPath: File?
+    navController: NavHostController,
+    photoName: String?,
+    photoAndMapViewModel: PhotoAndMapViewModel,
+    bluetoothServiceManager: BluetoothServiceManager,
+    imgPath: File?
     ) {
     val context = LocalContext.current
     val photo = photoName?.let { photoAndMapViewModel.getPhotoByName(it).observeAsState() }
 
     var sharingStarted by remember { mutableStateOf(false) }
 
-<<<<<<< HEAD
     val imageInputStream = BitmapFactory.decodeStream(BufferedInputStream(File("${imgPath}/${photoName}").inputStream()))
         .asImageBitmap()
 
-    val photo = photoName?.let { photoAndMapViewModel.getPhotoByName(it).observeAsState() }
-    val context = LocalContext.current
-
     val uri: Uri? = FileProvider.getUriForFile(
-        context, BuildConfig.APPLICATION_ID + ".provider", File(("/storage/emulated/0/Android/data/com.example.screp/files/Pictures/" + photoName))
+        context, BuildConfig.APPLICATION_ID + ".provider", File(("${imgPath}/${photoName}"))
     )
     val sendIntent: Intent = Intent().apply {
         action = Intent.ACTION_SEND
@@ -122,17 +115,26 @@ fun PhotoDetailScreen(
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.onSecondary),
             ){
-                Icon(painter = painterResource(id = R.drawable.ic_share),
+                Icon(painter = painterResource(id = R.drawable.ic_bluetooth),
                     contentDescription = stringResource(R.string.share),
                     modifier = Modifier
                         .clip(CircleShape)
                         .fillMaxSize()
                 )
             }
-            Button(onClick = {
-                context.startActivity(shareIntent)
-            }){
-                Text("Share")
+            Button(onClick = { context.startActivity(shareIntent)},
+                modifier = Modifier
+                    .size(50.dp)
+                .background(MaterialTheme.colors.onSecondary),
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.onSecondary),)
+            {
+                Icon(painter = painterResource(id = R.drawable.ic_share),
+                    contentDescription = stringResource(R.string.share),
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .fillMaxSize()
+                )
             }
         }
         if (sharingStarted){
@@ -160,7 +162,6 @@ fun ShowDevices(model: BluetoothServiceManager, imgBitmap: ImageBitmap) {
 @Composable
 fun ListDevices(type: String, listDevices: List<BluetoothDevice>?, bluetoothServiceManager: BluetoothServiceManager,
                 imgBitmap: ImageBitmap){
-    val context = LocalContext.current
 
     var listSize by remember{ mutableStateOf(0)}
 

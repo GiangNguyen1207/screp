@@ -30,7 +30,7 @@ import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
 import com.example.screp.R
-import com.example.screp.bluetoothService.BluetoothServiceManager
+import com.example.screp.services.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavItem
 import com.example.screp.data.Photo
 import com.example.screp.viewModels.PhotoAndMapViewModel
@@ -160,7 +160,7 @@ fun PhotosScreen(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = {
@@ -188,15 +188,7 @@ fun PhotosScreen(
                     modifier = Modifier.size(80.dp)
                 )
             }
-            IconButton(onClick = {
-                Log.i("aaaaaa", "Bluetooth button clicked")
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_bluetooth),
-                    contentDescription = "",
-                    modifier = Modifier.size(80.dp)
-                )
-            }
+
         }
     }
 }

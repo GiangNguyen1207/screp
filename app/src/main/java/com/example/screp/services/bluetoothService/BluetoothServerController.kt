@@ -1,19 +1,15 @@
-package com.example.screp.bluetoothService
+package com.example.screp.services.bluetoothService
 
-import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -199,7 +195,7 @@ private var handler: Handler = object: Handler(Looper.getMainLooper()) {
     override fun handleMessage(msg: Message) {
         when (msg.what) {
             STATE_LISTENING -> sharingStatusText = "Listening"
-            STATE_CONNECTING -> sharingStatusText= "Connecting"
+            STATE_CONNECTING -> sharingStatusText = "Connecting"
             STATE_CONNECTED -> sharingStatusText = "Connected"
             STATE_CONNECTION_FAILED -> sharingStatusText = "Connection Failed"
             STATE_MESSAGE_RECEIVED -> {

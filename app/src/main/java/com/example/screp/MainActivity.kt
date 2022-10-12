@@ -6,10 +6,7 @@ import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -20,7 +17,6 @@ import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
@@ -36,11 +32,9 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
-import com.example.screp.bluetoothService.BluetoothServer
-import com.example.screp.bluetoothService.BluetoothServiceManager
+import com.example.screp.services.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavigation
 import com.example.screp.bottomNavigation.NavigationGraph
-import com.example.screp.data.RouteNumber
 import com.example.screp.data.Settings
 import com.example.screp.services.NotificationManager
 import com.example.screp.services.SensorDataManager

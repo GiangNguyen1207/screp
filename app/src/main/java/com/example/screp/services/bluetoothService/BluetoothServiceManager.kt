@@ -1,4 +1,4 @@
-package com.example.screp.bluetoothService
+package com.example.screp.services.bluetoothService
 
 import android.app.Activity
 import android.bluetooth.*
@@ -10,26 +10,15 @@ import android.content.Context.BLUETOOTH_SERVICE
 import android.content.Context.COMPANION_DEVICE_SERVICE
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.screp.MainActivity
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import java.util.*
 import java.util.regex.Pattern
 
