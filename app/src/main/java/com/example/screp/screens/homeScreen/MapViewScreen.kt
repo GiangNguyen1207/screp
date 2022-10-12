@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import com.example.screp.sensorService.SensorDataManager
+import com.example.screp.services.SensorDataManager
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import com.example.screp.viewModels.StepCountViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -26,6 +26,11 @@ fun MapViewScreen(navController: NavHostController,
             GoogleMap(navController,fusedLocationProviderClient, photoAndMapViewModel)
         }
 
-        RecordStepCountComponent(stepCountViewModel, dataManager)
+        RecordStepCountComponent(
+            stepCountViewModel = stepCountViewModel,
+            dataManager = dataManager,
+            fusedLocationProviderClient = fusedLocationProviderClient,
+            photoAndMapViewModel = photoAndMapViewModel
+        )
     }
 }

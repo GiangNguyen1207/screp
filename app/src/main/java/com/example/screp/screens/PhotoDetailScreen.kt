@@ -1,11 +1,10 @@
 package com.example.screp.screens
 
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.le.ScanResult
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.Build
-import android.os.Environment
+import android.net.Uri
 import android.util.Log
 
 import androidx.compose.foundation.*
@@ -27,15 +26,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
-import com.example.screp.MainActivity
+import com.example.screp.BuildConfig
 import com.example.screp.R
 import com.example.screp.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavItem
-import com.example.screp.data.Photo
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import java.io.BufferedInputStream
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 @Composable
 fun PhotoDetailScreen(
@@ -50,9 +51,22 @@ fun PhotoDetailScreen(
 
     var sharingStarted by remember { mutableStateOf(false) }
 
+<<<<<<< HEAD
     val imageInputStream = BitmapFactory.decodeStream(BufferedInputStream(File("${imgPath}/${photoName}").inputStream()))
         .asImageBitmap()
 
+    val photo = photoName?.let { photoAndMapViewModel.getPhotoByName(it).observeAsState() }
+    val context = LocalContext.current
+
+    val uri: Uri? = FileProvider.getUriForFile(
+        context, BuildConfig.APPLICATION_ID + ".provider", File(("/storage/emulated/0/Android/data/com.example.screp/files/Pictures/" + photoName))
+    )
+    val sendIntent: Intent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_STREAM, uri)
+        type = "image/*"
+    }
+    val shareIntent = Intent.createChooser(sendIntent, null)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -114,6 +128,11 @@ fun PhotoDetailScreen(
                         .clip(CircleShape)
                         .fillMaxSize()
                 )
+            }
+            Button(onClick = {
+                context.startActivity(shareIntent)
+            }){
+                Text("Share")
             }
         }
         if (sharingStarted){
