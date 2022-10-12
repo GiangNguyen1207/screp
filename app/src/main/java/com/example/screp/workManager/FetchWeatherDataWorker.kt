@@ -1,11 +1,11 @@
 package com.example.screp.workManager
 
+import android.annotation.SuppressLint
+import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.icu.util.Calendar
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -13,10 +13,12 @@ import com.example.screp.R
 import com.example.screp.data.HourlyWeather
 import com.example.screp.helpers.CalendarUtil
 import com.example.screp.repository.WeatherRepository
+import com.example.screp.viewModels.WeatherViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 class FetchWeatherDataWorker(
-    private val context: Context,
-    private val workerParams: WorkerParameters
+    private val context: Context, workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
     private val channelId: String = "notificationService"
     private val channelName: String = "NotificationScrep"
@@ -30,19 +32,36 @@ class FetchWeatherDataWorker(
     private val snowTimeGroup: MutableList<Long> = mutableListOf()
 
     private val weatherRepository: WeatherRepository = WeatherRepository()
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private val weatherViewModel: WeatherViewModel = WeatherViewModel(context.applicationContext as Application)
 
+    @SuppressLint("MissingPermission")
     override suspend fun doWork(): Result {
+        var latitude = 0.0
+        var longitude = 0.0
+
         return try {
-            val weatherData = weatherRepository.fetchWeatherData()
+            fusedLocationProviderClient =
+                LocationServices.getFusedLocationProviderClient(context)
+            val task = fusedLocationProviderClient.lastLocation
+
+            task.addOnSuccessListener { location ->
+                latitude = location.latitude
+                longitude = location.longitude
+            }
+
             val currentTime = CalendarUtil().getCurrentTime()
             val currentDateEnd = CalendarUtil().getCurrentDateEnd()
-            val testData =
+            val weatherData = weatherRepository.fetchWeatherData(latitude, longitude)
+            val todayWeatherData =
                 weatherData.hourly.filter { hourlyWeather -> hourlyWeather.dt in currentTime..currentDateEnd }
-            sortWeatherCondition(testData)
+
+            sortWeatherCondition(todayWeatherData)
             notifyWeatherCondition()
+
             Result.success()
         } catch (throwable: Throwable) {
-            Result.failure()
+            Result.retry()
         }
     }
 

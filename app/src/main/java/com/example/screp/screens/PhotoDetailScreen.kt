@@ -1,6 +1,9 @@
 package com.example.screp.screens
 
+import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -13,9 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
+import com.example.screp.BuildConfig
 import com.example.screp.R
 import com.example.screp.bottomNavigation.BottomNavItem
 import com.example.screp.data.Photo
@@ -24,14 +30,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.BufferedInputStream
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 @Composable
 fun PhotoDetailScreen(navController: NavHostController, photoName: String?, photoAndMapViewModel: PhotoAndMapViewModel) {
 
 
     val photo = photoName?.let { photoAndMapViewModel.getPhotoByName(it).observeAsState() }
+    val context = LocalContext.current
 
-
+    val uri: Uri? = FileProvider.getUriForFile(
+        context, BuildConfig.APPLICATION_ID + ".provider", File(("/storage/emulated/0/Android/data/com.example.screp/files/Pictures/" + photoName))
+    )
+    val sendIntent: Intent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_STREAM, uri)
+        type = "image/*"
+    }
+    val shareIntent = Intent.createChooser(sendIntent, null)
+    
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -63,6 +81,11 @@ fun PhotoDetailScreen(navController: NavHostController, photoName: String?, phot
                     contentDescription = "",
                     modifier = Modifier.size(50.dp)
                 )
+            }
+            Button(onClick = {
+                context.startActivity(shareIntent)
+            }){
+                Text("Share")
             }
         }
     }
