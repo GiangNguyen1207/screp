@@ -35,7 +35,9 @@ Placeholder for demo screen recording
 
 📍 Track user location on map and navigate map to the current location
 
-👣 Record walking session with timer and step count sensor
+🚶 Record walking session with timer and step count sensor
+ 
+👣 See your route track on the map 
 
 📈 View graph and summary of walking records
 
