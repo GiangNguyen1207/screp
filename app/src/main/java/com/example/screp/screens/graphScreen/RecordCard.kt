@@ -17,7 +17,7 @@ import com.example.screp.R
 @Composable
 fun RecordCard(time: String, stepCount: String) {
     Card(
-        backgroundColor = MaterialTheme.colors.background.copy(alpha = 0.5f),
+        backgroundColor = MaterialTheme.colors.background.copy(0.8f),
         shape = RoundedCornerShape(15.dp),
         elevation = 0.dp,
         modifier = Modifier
@@ -32,20 +32,20 @@ fun RecordCard(time: String, stepCount: String) {
             ){
                 Text(
                     stringResource(R.string.recordcard_title),
-                    color = MaterialTheme.colors.primary,
+                    color = MaterialTheme.colors.primaryVariant,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     time,
-                    color = MaterialTheme.colors.primary,
+                    color = MaterialTheme.colors.secondary.copy(alpha = 0.5f),
                     fontSize = 16.sp,
                 )
             }
 
             Text(
                 stepCount,
-                color = MaterialTheme.colors.primary,
+                color = MaterialTheme.colors.secondary,
                 fontSize = 40.sp,
                 fontWeight = FontWeight.Bold
             )

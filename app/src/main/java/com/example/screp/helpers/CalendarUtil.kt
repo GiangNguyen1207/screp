@@ -46,7 +46,7 @@ class CalendarUtil {
                 append(startTimeDateString)
                 append("\n")
                 append(convertLongToTime("HH:mm", startTime))
-                append("-")
+                append(" - ")
                 append(convertLongToTime("HH:mm", endTime))
             }.toString()
         }
