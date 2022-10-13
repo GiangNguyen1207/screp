@@ -20,18 +20,12 @@ import com.google.android.gms.location.FusedLocationProviderClient
 @Composable
 fun WeatherScreen(
     weatherViewModel: WeatherViewModel,
-    photoAndMapViewModel: PhotoAndMapViewModel,
-    fusedLocationProviderClient: FusedLocationProviderClient
 ) {
     val weatherData: Weather? by weatherViewModel.weatherData.observeAsState(null)
     val currentLocation: String by weatherViewModel.currentLocation.observeAsState("")
     var isLoading by remember { mutableStateOf(true) }
 
-    photoAndMapViewModel.requestLocationResultCallback(fusedLocationProviderClient) { locationResult ->
-        locationResult.lastLocation?.let { location ->
-            weatherViewModel.fetchWeatherData(location.latitude, location.longitude)
-        }
-    }
+    weatherViewModel.fetchWeatherData()
 
     if (weatherData != null && currentLocation.isNotEmpty()) isLoading = false
 

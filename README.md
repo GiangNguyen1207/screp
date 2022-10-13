@@ -35,7 +35,9 @@ Placeholder for demo screen recording
 
 📍 Track user location on map and navigate map to the current location
 
-👣 Record walking session with timer and step count sensor
+🚶 Record walking session with timer and step count sensor
+ 
+👣 See your route track on the map 
 
 📈 View graph and summary of walking records
 
@@ -88,7 +90,7 @@ cd Screp
 - on Emulator: [run from Android Studio menu](https://developer.android.com/studio/run/emulator): Not recommended as the app has step count sensor and bluetooth feature, which are not optimized or available on emulator
 - on Hardware device: [run from Android Studio](https://developer.android.com/studio/run/device): Android phones with API >= 26 are recommended.
 
-In case of running issue: Navigate to top menu in Xcode: `File > Invalidate Caches`, or clean and rebuild the project.
+In case of running issue: Navigate to top menu in Android Studio: `File > Invalidate Caches`, or clean and rebuild the project.
 
 ## Resources
 

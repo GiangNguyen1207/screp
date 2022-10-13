@@ -17,6 +17,7 @@ class WeatherRepository {
             apiKey
         )
 
+
     suspend fun fetchGeoCode(latitude: Double, longitude: Double): List<Geocode> =
         WeatherApi.retrofitService.fetchGeoCode(
             latitude,
