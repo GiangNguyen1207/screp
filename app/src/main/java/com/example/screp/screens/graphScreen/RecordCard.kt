@@ -22,7 +22,7 @@ fun RecordCard(time: String, stepCount: String) {
         elevation = 0.dp,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(

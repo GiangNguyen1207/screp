@@ -7,6 +7,8 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DirectionsWalk
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +58,10 @@ fun RecordStepCountComponent(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Time: ${Converter().trackingTimeFormatter(trackingTime.value)}")
+        Text(
+            text = "Time: ${Converter().trackingTimeFormatter(trackingTime.value)}",
+            color = if (sensorStatusOn) MaterialTheme.colors.onSecondary else MaterialTheme.colors.primary
+        )
 
         Button(
             onClick = {
@@ -95,18 +100,21 @@ fun RecordStepCountComponent(
                     fusedLocationProviderClient.removeLocationUpdates(photoAndMapViewModel.travelRouteLocationCallback)
                 }
             },
-            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary),
+            colors = ButtonDefaults.buttonColors(backgroundColor = if (sensorStatusOn) MaterialTheme.colors.onSecondary else MaterialTheme.colors.primary),
             shape = CircleShape,
             modifier = Modifier.size(80.dp)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_walk),
-                tint = if (sensorStatusOn) MaterialTheme.colors.onSecondary else MaterialTheme.colors.onPrimary,
+                Icons.Rounded.DirectionsWalk,
+                tint = if (sensorStatusOn) MaterialTheme.colors.onPrimary else MaterialTheme.colors.background,
                 contentDescription = "",
                 modifier = Modifier.fillMaxSize()
             )
         }
 
-        Text(text = "Step: ${stepCount.value}")
+        Text(
+            text = "Step: ${stepCount.value}",
+            color = if (sensorStatusOn) MaterialTheme.colors.onSecondary else MaterialTheme.colors.primary
+        )
     }
 }
