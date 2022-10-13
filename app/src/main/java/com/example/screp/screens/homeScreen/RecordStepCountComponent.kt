@@ -20,6 +20,7 @@ import com.example.screp.viewModels.StepCountViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.screp.data.RouteNumber
 import com.example.screp.helpers.Converter
@@ -60,7 +61,7 @@ fun RecordStepCountComponent(
     ) {
         Text(
             text = "Time: ${Converter().trackingTimeFormatter(trackingTime.value)}",
-            color = if (sensorStatusOn) MaterialTheme.colors.onSecondary else MaterialTheme.colors.primary
+            color = if (sensorStatusOn) MaterialTheme.colors.primary else MaterialTheme.colors.onBackground
         )
 
         Button(
@@ -100,13 +101,13 @@ fun RecordStepCountComponent(
                     fusedLocationProviderClient.removeLocationUpdates(photoAndMapViewModel.travelRouteLocationCallback)
                 }
             },
-            colors = ButtonDefaults.buttonColors(backgroundColor = if (sensorStatusOn) MaterialTheme.colors.onSecondary else MaterialTheme.colors.primary),
+            colors = ButtonDefaults.buttonColors(backgroundColor = if (sensorStatusOn) MaterialTheme.colors.primary else MaterialTheme.colors.onBackground),
             shape = CircleShape,
             modifier = Modifier.size(80.dp)
         ) {
             Icon(
                 Icons.Rounded.DirectionsWalk,
-                tint = if (sensorStatusOn) MaterialTheme.colors.onPrimary else MaterialTheme.colors.background,
+                tint = MaterialTheme.colors.background,
                 contentDescription = "",
                 modifier = Modifier.fillMaxSize()
             )
@@ -114,7 +115,7 @@ fun RecordStepCountComponent(
 
         Text(
             text = "Step: ${stepCount.value}",
-            color = if (sensorStatusOn) MaterialTheme.colors.onSecondary else MaterialTheme.colors.primary
+            color = if (sensorStatusOn) MaterialTheme.colors.primary else MaterialTheme.colors.onBackground
         )
     }
 }

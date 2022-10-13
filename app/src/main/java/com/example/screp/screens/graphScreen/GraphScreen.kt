@@ -148,7 +148,7 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colors.onPrimary,
         )
-        LazyColumn() {
+        LazyColumn {
             items(stepCounts.value.sortedByDescending { it.startTime }) {
                 val timeString = CalendarUtil().formatTimeForRecordCard(it.startTime, it.endTime)
                 RecordCard(time = timeString, stepCount = it.total.toString())
@@ -214,7 +214,7 @@ fun CircularProgressBar(
                     }
                 },
                 color = color,
-                fontSize = fontSize,
+                fontSize = 20.sp,
                 textAlign = TextAlign.Center
             )
             Text(

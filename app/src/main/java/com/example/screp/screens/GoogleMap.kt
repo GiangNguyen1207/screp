@@ -238,7 +238,7 @@ private fun TrackingButton(
         ) {
             Icon(
                 Icons.Rounded.MyLocation,
-                contentDescription = "Track current locaton",
+                contentDescription = "Track current location",
                 tint = MaterialTheme.colors.primary
             )
         }
