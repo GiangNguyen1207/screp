@@ -53,16 +53,17 @@ Placeholder for demo screen recording
 ### Functional requirements implemented:
  
 - [x] Follow material design guidelines recommendation
-- [x] Use all of 4 basic components: activity, broadcast receiver, service, content provider
+- [x] Use all of the 4 required basic components: activity, broadcast receiver, service, content provider
 - [x] Use Compose
 - [x] Implement Persistence (Room and File and SharedPreferences)
 - [x] Implement Connection to [Open weather API](https://api.openweathermap.org/data/2.5/weather?) web service
 - [x] Implement Step count sensor
-- [x] Implement Bluetooth communication
+- [x] Implement Bluetooth communication: using classic Bluetooth to find and pair smart phone devices, establish connection to transfer file
 - [x] Implement Extra "hardware" on addition to sensors (gps, camera,...)
 - [x] Implement ViewModel, LiveData
 - [x] Implement WorkManager/Worker 
 - [x] Implement Other APIs: Google Map, Navigation
+- [x] Use coroutines and threads
 
 
 ## Requirements
