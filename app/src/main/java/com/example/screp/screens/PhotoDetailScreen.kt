@@ -107,7 +107,6 @@ fun PhotoDetailScreen(
             }
             Button(
                 onClick = {
-                    Log.d("BT_LOG", "photo details: BT adapter"+ bluetoothServiceManager.bluetoothAdapter.toString())
                     bluetoothServiceManager.startTimerJob()
                     sharingStarted = true
                 },
@@ -150,7 +149,6 @@ fun PhotoDetailScreen(
 fun ShowDevices(model: BluetoothServiceManager, imgBitmap: ImageBitmap) {
     val context = LocalContext.current
     val devicesPaired: List<BluetoothDevice>? by model.scanResultsPaired.observeAsState(null)
-    Log.d("BT_LOG", "devices paired ${devicesPaired?.size}")
     val devicesFound: List<BluetoothDevice>? by model.scanResultsFound.observeAsState(null)
     val fScanning: Boolean by model.fScanning.observeAsState(false)
     Text(if(fScanning) "Scanning..." else "")
@@ -200,9 +198,6 @@ fun ListDevices(type: String, listDevices: List<BluetoothDevice>?, bluetoothServ
                     .selectable(true,
                         onClick = {
                             Log.d("BT_TRANSFER", "selected item on list ${it.name}")
-//                            Log.d("BT_TRANSFER", "selected item on list uuid ${it.uuids.size}")
-//                            it.uuids.forEach { it -> Log.d("BT_TRANSFER", "uuid item: ${it.toString()} uuid: ${it.uuid}" ) }
-
                             if (type == "Found"){
                                 bluetoothServiceManager.pairDevices(device = it)
                             }
