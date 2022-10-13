@@ -12,6 +12,9 @@ Sensor-based Android Application Development group project at Metropolia UAS - A
 
 <br  />
 
+<img src="https://user-images.githubusercontent.com/51530194/195667250-34f6943e-e8d4-480e-ab26-615a713907ab.png" width=200 />
+
+
 ### Walking is now getting better and more fun with Screp App
 
 <p  align="row">
