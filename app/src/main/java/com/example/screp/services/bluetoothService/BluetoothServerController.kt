@@ -59,11 +59,9 @@ class BluetoothServer(activity: Activity, bluetoothAdapter: BluetoothAdapter): T
             } catch (e: Exception) {
                 Log.e("BT_TRANSFER", "Socket's accept() method failed", e)
             }
-            Log.d("BT_TRANSFER", "got the socket ${socket}" )
-
 
             if (socket != null){
-                Log.d("BT_TRANSFER", "got the socket" )
+                Log.d("BT_TRANSFER", "got the socket ${socket}" )
                 sendReceive = SendReceive(socket)
                 sendReceive?.start()
                 mServerSocket?.close()

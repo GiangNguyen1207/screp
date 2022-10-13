@@ -14,9 +14,11 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.screp.R
 import kotlinx.coroutines.*
 import java.io.ByteArrayOutputStream
 import java.util.*
@@ -56,14 +58,9 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
     fun init(){
         bluetoothManager = context.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
-        Log.d("BT_LOG", "BT Service: init")
         if (bluetoothAdapter == null) {
             Toast.makeText(context, "Device doesn't support Bluetooth", Toast.LENGTH_SHORT).show()
         }
-
-        bluetoothAdapter.startDiscovery()
-        server = BluetoothServer(activity, bluetoothAdapter)
-        server.start()
 
     }
 
@@ -112,9 +109,13 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
         viewModelScope.launch {
             fScanning.postValue(true)
             val startDiscovery = bluetoothAdapter.startDiscovery()
-//            Log.d("BT_LOG", "BT device discovery")
-            if (!startDiscovery){
-                Log.d("BT_LOG", "BT device discovery unsuccesful")
+            if (!startDiscovery) {
+                Log.e("BT_LOG", "BT device discovery unsuccesful")
+                Toast.makeText(
+                    context,
+                    "Bluetooth discovery is unsuccessful, trying again",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             val pairedDevices = bluetoothAdapter.bondedDevices
             if (pairedDevices.size == 0 || pairedDevices == null){
@@ -123,10 +124,8 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
             else {
                 pairedDevices.forEach { it -> mResultsPaired[it.address] = it }
                 scanResultsPaired.postValue(mResultsPaired.values.toList())
-
             }
             fScanning.postValue(false)
-
 
         }
     }
@@ -145,7 +144,6 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
     }
 
     fun handleImageTransfer(imgBitmap: ImageBitmap, device: BluetoothDevice){
-
         server = BluetoothServer(activity, bluetoothAdapter)
         server.start()
 
@@ -153,7 +151,7 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
         client.start()
 
         if (server.sendReceive == null || client.sendReceive == null){
-            Toast.makeText(context, "Cannot set up connection for sharing", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Failed to share image via bluetooth.\n Please try another option", Toast.LENGTH_LONG).show()
             Log.d("BT_TRANSFER", "Not found any sendReceive service")
         }
         else {
@@ -166,7 +164,7 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
 
             Log.d("BT_TRANSFER", "img bytes total ${imgBytes.size} bytes")
 
-
+            // Process output stream to sub-arrays
             val subArraySize = 400
             var i = 0
             while (i < imgBytes.size) {
@@ -175,16 +173,13 @@ class BluetoothServiceManager (context: Context, activity: Activity): ViewModel(
                     Arrays.copyOfRange(imgBytes, i, Math.min(imgBytes.size, i + subArraySize))
                 Log.d("BT_TRANSFER", "temp array ${tempArray.size}")
                 Log.d("BT_TRANSFER", "send receive obj ${server.sendReceive}")
-
                 server.sendReceive!!.write(tempArray!!)
                 Log.d("BT_TRANSFER", "passed send receive")
 
                 i += subArraySize
             }
+            server.cancel()
         }
 
     }
-
-
-
 }
