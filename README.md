@@ -35,10 +35,11 @@ Screenshots from the app
 
 ### Demo recording with full features
 
+Click to play video
+
 <p>
 
- [![demo recording](http://img.youtube.com/vi/rxM8AzkIMa8/0.jpg)](https://youtu.be/rxM8AzkIMa8)
-  
+ [![demo recording](http://img.youtube.com/vi/O5mf_JnLATI/0.jpg)](https://youtu.be/O5mf_JnLATI)
 </p>
 
 ## Features
