@@ -17,12 +17,12 @@ import com.example.screp.R
 @Composable
 fun RecordCard(time: String, stepCount: String) {
     Card(
-        backgroundColor = MaterialTheme.colors.background.copy(alpha = 0.5f),
+        backgroundColor = MaterialTheme.colors.background.copy(0.7f),
         shape = RoundedCornerShape(15.dp),
         elevation = 0.dp,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(
@@ -32,13 +32,13 @@ fun RecordCard(time: String, stepCount: String) {
             ){
                 Text(
                     stringResource(R.string.recordcard_title),
-                    color = MaterialTheme.colors.primary,
+                    color = MaterialTheme.colors.secondary,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     time,
-                    color = MaterialTheme.colors.primary,
+                    color = MaterialTheme.colors.primary.copy(alpha = 0.7f),
                     fontSize = 16.sp,
                 )
             }

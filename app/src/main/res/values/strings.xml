@@ -13,4 +13,6 @@
     <string name="recordcard_title">Steps</string>
     <string name="recordList_title">All activities</string>
     <string name="share">share</string>
+    <string name="no_activity">No activities for today yet.</string>
+    <string name="click_here">Click here</string>
 </resources>

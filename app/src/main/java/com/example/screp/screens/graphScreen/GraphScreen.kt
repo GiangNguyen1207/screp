@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -45,9 +46,9 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
 
     // Get start and end time, with start time depends on the current state of selected option
     val todayDate = CalendarUtil().getTodayDate()
-    val lastWeekDate = CalendarUtil().getCalculatedDate(days=-7)
+    val lastWeekDate = CalendarUtil().getCalculatedDate(days = -7)
 
-    var startTime by remember { mutableStateOf( CalendarUtil().getCurrentDateStart(todayDate)) }
+    var startTime by remember { mutableStateOf(CalendarUtil().getCurrentDateStart(todayDate)) }
     val endTime = CalendarUtil().getCurrentDateEnd(todayDate)
 
     // Init step count in period
@@ -55,16 +56,16 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
 
     // init variable and state for the graph display option
     val options = listOf("Day", "Week")
-    var selectedOption by remember { mutableStateOf("Day")}
-    val onSelectionChange = {text: String -> selectedOption = text}
+    var selectedOption by remember { mutableStateOf("Day") }
+    val onSelectionChange = { text: String -> selectedOption = text }
 
     // Fetch data from database based on selected period
     val stepCounts = stepCountViewModel.getStepCounts(startTime, endTime).observeAsState(listOf())
 
     // Parse step count data to Int for graph generation
     var listRecordsInPeriod: List<Int> = stepCounts.value.map { it -> it.total }
-    if (listRecordsInPeriod.size > 0){
-        totalStepCountInPeriod= listRecordsInPeriod.reduce { acc, i ->  acc + i}
+    if (listRecordsInPeriod.size > 0) {
+        totalStepCountInPeriod = listRecordsInPeriod.reduce { acc, i -> acc + i }
     }
 
     //get daily step goal from user setting (default = 5000/day)
@@ -72,8 +73,7 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
     val stepGoal = savedSettings.value.stepGoal.toInt()
 
     Column(
-       horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround,
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .background(
@@ -84,19 +84,27 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
                     )
                 )
             )
-    ){
+    ) {
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .clip(RoundedCornerShape(10.dp))
-                .padding(10.dp)
-        ){
+                .fillMaxWidth()
+                .padding(16.dp)
+                .clip(RoundedCornerShape(50.dp))
+                .background(Color.LightGray)
+        ) {
             options.forEach { text ->
-                Row(horizontalArrangement = Arrangement.Center){
-                    Text(text,
+                Row(
+                    modifier = Modifier
+                        .weight(0.5f)
+                ) {
+                    Text(
+                        text,
                         color = MaterialTheme.colors.primary,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier
+                            .fillMaxWidth()
                             .clickable {
                                 onSelectionChange(text)
                                 if (selectedOption == "Week") {
@@ -110,22 +118,26 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
                                     Color.LightGray
                                 }
                             )
-                            .padding(
-                                vertical = 12.dp,
-                                horizontal = 16.dp,
-                            )
+                            .padding(10.dp),
                     )
                 }
             }
         }
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(30.dp)
-        ){
-            if (selectedOption == "Day"){
-                CircularProgressBar(percentage = (totalStepCountInPeriod.toFloat()/stepGoal), number = stepGoal)
-            } else if (selectedOption == "Week"){
-                CircularProgressBar(percentage = (totalStepCountInPeriod.toFloat()/(stepGoal*7)), number = stepGoal*7)
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            if (selectedOption == "Day") {
+                CircularProgressBar(
+                    percentage = (totalStepCountInPeriod.toFloat() / stepGoal),
+                    number = stepGoal
+                )
+            } else if (selectedOption == "Week") {
+                CircularProgressBar(
+                    percentage = (totalStepCountInPeriod.toFloat() / (stepGoal * 7)),
+                    number = stepGoal * 7
+                )
             }
         }
         Text(
@@ -133,15 +145,21 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colors.onPrimary,
-            modifier = Modifier.padding(10.dp)
+            modifier = Modifier.padding(bottom = 10.dp)
         )
-        LazyColumn (){
+
+        if (stepCounts.value.isEmpty()) Text(
+            text = stringResource(R.string.no_activity),
+            color = MaterialTheme.colors.onPrimary,
+            modifier = Modifier.padding(top = 10.dp)
+        )
+
+        LazyColumn {
             items(stepCounts.value.sortedByDescending { it.startTime }) {
                 val timeString = CalendarUtil().formatTimeForRecordCard(it.startTime, it.endTime)
                 RecordCard(time = timeString, stepCount = it.total.toString())
             }
         }
-
     }
 }
 
@@ -151,22 +169,22 @@ fun CircularProgressBar(
     percentage: Float,
     number: Int,
     fontSize: TextUnit = 25.sp,
-    radius: Dp = 125.dp,
+    radius: Dp = LocalConfiguration.current.screenHeightDp.dp / 6,
     color: Color = MaterialTheme.colors.onSecondary,
     strokeWidth: Dp = 15.dp,
     animDuration: Int = 1000,
     animDelay: Int = 0
-){
-    var animationPlayed by remember{ mutableStateOf(false) }
+) {
+    var animationPlayed by remember { mutableStateOf(false) }
     val currentPercentage = animateFloatAsState(
-        targetValue = if(animationPlayed) percentage else 0f,
+        targetValue = if (animationPlayed) percentage else 0f,
         animationSpec = tween(
             durationMillis = animDuration,
             delayMillis = animDelay
         )
     )
     // start animation only gets triggered for the first composition:
-    LaunchedEffect(key1 = true){
+    LaunchedEffect(key1 = true) {
         animationPlayed = true
     }
 
@@ -176,8 +194,8 @@ fun CircularProgressBar(
             .size(radius * 2.1f)
             .clip(CircleShape)
             .background(MaterialTheme.colors.onPrimary)
-    ){
-        Canvas(modifier = Modifier.size(radius*2f)){
+    ) {
+        Canvas(modifier = Modifier.size(radius * 2f)) {
             drawArc(
                 color = color,
                 startAngle = -90f,
@@ -186,24 +204,29 @@ fun CircularProgressBar(
                 style = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round),
             )
         }
-        Column(horizontalAlignment = Alignment.CenterHorizontally){
-            Text (
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
                 buildAnnotatedString {
                     append("Total\n")
                     withStyle(
-                        style = SpanStyle(fontSize = 50.sp,
-                        fontWeight = FontWeight.Bold))
+                        style = SpanStyle(
+                            fontSize = 50.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
                     {
                         append((currentPercentage.value * number).toInt().toString())
                     }
                 },
                 color = color,
-                fontSize = fontSize,
+                fontSize = 20.sp,
                 textAlign = TextAlign.Center
             )
-            Text ("Goal: ${number}",
+            Text(
+                "Goal: ${number}",
                 color = MaterialTheme.colors.primary,
-                fontSize = fontSize)
+                fontSize = fontSize
+            )
         }
     }
 }

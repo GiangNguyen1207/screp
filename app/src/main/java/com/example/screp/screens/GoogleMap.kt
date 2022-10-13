@@ -11,13 +11,17 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.MyLocation
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -148,7 +152,7 @@ private fun MyGoogleMap(
     // enable zoom button on the map
     val mapUiSettings by remember {
         mutableStateOf(
-            MapUiSettings(zoomControlsEnabled = true)
+            MapUiSettings(zoomControlsEnabled = true, myLocationButtonEnabled = false)
         )
     }
     var photos: State<List<Photo>>? = photoAndMapViewModel.getPhotos().observeAsState(listOf())
@@ -223,10 +227,20 @@ private fun TrackingButton(
             .padding(8.dp),
         horizontalArrangement = Arrangement.End
 
-
     ) {
-        Button(onClick = onTrackingButtonClick) {
-            Text(text = "Tracking")
+        Button(
+            onClick = onTrackingButtonClick,
+            shape = CircleShape,
+            modifier = Modifier
+                .size(50.dp),
+            colors = ButtonDefaults.buttonColors(Color.White.copy(0.8f)),
+            elevation = null
+        ) {
+            Icon(
+                Icons.Rounded.MyLocation,
+                contentDescription = "Track current location",
+                tint = MaterialTheme.colors.primary
+            )
         }
     }
 }

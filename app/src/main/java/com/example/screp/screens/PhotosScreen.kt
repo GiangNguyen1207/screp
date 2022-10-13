@@ -13,23 +13,25 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AddAPhoto
+import androidx.compose.material.icons.rounded.MyLocation
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
-import com.example.screp.R
 import com.example.screp.services.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavItem
 import com.example.screp.data.Photo
@@ -101,7 +103,11 @@ fun PhotosScreen(
                         state = !state
                     } catch (e: IOException) {
                         Log.i("aaaaaa", "IOException ${e}")
-                        Toast.makeText(context, "Photo not saved due to Geocoder service not available", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            context,
+                            "Photo not saved due to Geocoder service not available",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
             }
@@ -116,9 +122,8 @@ fun PhotosScreen(
                 .fillMaxHeight(fraction = 0.75f)
                 .padding(20.dp)
         ) {
-            Column() {
-                Spacer(Modifier.height(20.0.dp))
-                Text(text = "Photo gallery", fontSize = 30.sp)
+            Column {
+                Text(text = "Photo gallery", fontSize = 24.sp, color = MaterialTheme.colors.primary)
                 Spacer(Modifier.height(20.0.dp))
                 Column(
                     modifier = Modifier
@@ -128,8 +133,14 @@ fun PhotosScreen(
                     cityNameList.forEach { cityName ->
                         val photo: State<List<Photo>> =
                             photoAndMapViewModel.getPhotoByCity(cityName).observeAsState(listOf())
-                        Text(text = cityName, fontSize = 20.sp)
-                        Spacer(Modifier.height(20.0.dp))
+                        Text(
+                            text = cityName,
+                            fontSize = 20.sp,
+                            color = MaterialTheme.colors.primary,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(10.dp)
+                        )
+                        Spacer(Modifier.height(10.0.dp))
                         LazyRow {
                             items(photo.value) {
                                 val uri = "${imgPath}/" + it.photoName
@@ -147,9 +158,9 @@ fun PhotosScreen(
                                                 navController.navigate(BottomNavItem.PhotoDetail.screen_route + "/${it.photoName}")
                                             }
                                         )
-                                        .size(100.dp)
+                                        .size(LocalConfiguration.current.screenHeightDp.dp / 4)
+                                        .padding(3.dp)
                                 )
-                                Spacer(Modifier.width(5.0.dp))
                             }
                         }
                         Spacer(Modifier.height(20.0.dp))
@@ -159,36 +170,43 @@ fun PhotosScreen(
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(end = 20.dp, bottom = 30.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.Bottom,
         ) {
-            IconButton(onClick = {
-                if (photoAndMapViewModel.isLocationPermissionGranted(context)) {
-                    coroutineScope.launch(Dispatchers.Default) {
-                        launcher.launch(photoURI)
+            Button(
+                onClick = {
+                    if (photoAndMapViewModel.isLocationPermissionGranted(context)) {
+                        coroutineScope.launch(Dispatchers.Default) {
+                            launcher.launch(photoURI)
+                        }
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Photo no taken, because location permission was denied",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        requestPermissions(
+                            context as Activity,
+                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                            1
+                        )
                     }
-                } else {
-                    Toast.makeText(
-                        context,
-                        "Photo no taken, because location permission was denied",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    requestPermissions(
-                        context as Activity,
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        1
-                    )
-                }
-
-            }) {
+                },
+                shape = CircleShape,
+                modifier = Modifier
+                    .size(70.dp),
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colors.secondary),
+            ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_camera),
-                    contentDescription = "",
-                    modifier = Modifier.size(80.dp)
+                    Icons.Rounded.AddAPhoto,
+                    contentDescription = "Take photo",
+                    tint = MaterialTheme.colors.background,
+                    modifier = Modifier.size(30.dp)
                 )
             }
-
         }
     }
 }

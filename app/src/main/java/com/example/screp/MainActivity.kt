@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
 
     lateinit var takePermissions: ActivityResultLauncher<Array<String>>
     lateinit var takeResultLauncher: ActivityResultLauncher<Intent>
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         dataManager = SensorDataManager(this)
@@ -129,7 +129,9 @@ class MainActivity : ComponentActivity() {
 
                     Scaffold(
                         bottomBar = {
-                            if (navBackStackEntry?.destination?.route != "edit") {
+                            if (navBackStackEntry?.destination?.route != "edit" &&
+                                navBackStackEntry?.destination?.route?.contains("photoDetail") == false
+                            ) {
                                 BottomNavigation(navController = navController)
                             }
                         }
@@ -168,29 +170,32 @@ class MainActivity : ComponentActivity() {
     private fun hasLocationPermissions(): Boolean {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d("aaaaaa", "No gps access")
-            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION ), 1);
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1);
             return true // assuming that the user grants permission
-        } else if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+        } else if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Log.d("aaaaaa", "gps access")
         }
         return true
     }
 
-    private fun getActivityPermission(){
-        if(ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
+    private fun getActivityPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACTIVITY_RECOGNITION
+            ) == PackageManager.PERMISSION_DENIED
+        ) {
             //ask for permission
             requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1)
         }
     }
 
 
-    fun getBluetoothPermission(){
+    fun getBluetoothPermission() {
         // Get BT permissions
         takePermissions =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
             {
-                it.entries.forEach{
+                it.entries.forEach {
                     Log.d("BT_LOG", " list permission" + "${it.key} = ${it.value}")
                     if (it.value == false) {
                         val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
@@ -198,27 +203,35 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 if (it[Manifest.permission.BLUETOOTH_ADMIN] == true
-                    && it[Manifest.permission.ACCESS_FINE_LOCATION] == true){
+                    && it[Manifest.permission.ACCESS_FINE_LOCATION] == true
+                ) {
                     Log.d("BT_LOG", "bluetooth and location access OK")
                 } else {
-                    Toast.makeText(applicationContext, "Bluetooth permissions are not granted", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        applicationContext,
+                        "Bluetooth permissions are not granted",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-        takeResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult(),
-            ActivityResultCallback{
-                    result -> if (result.resultCode == RESULT_OK){
-                Log.d("BT_LOG", "activity result callback ${result.resultCode}")
-            } else {
-                Log.d("BT_LOG", "activity result callback ${result.resultCode}")
-            }
-            })
+        takeResultLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult(),
+                ActivityResultCallback { result ->
+                    if (result.resultCode == RESULT_OK) {
+                        Log.d("BT_LOG", "activity result callback ${result.resultCode}")
+                    } else {
+                        Log.d("BT_LOG", "activity result callback ${result.resultCode}")
+                    }
+                })
 
-        takePermissions.launch(arrayOf(
-            Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_ADMIN,
-            Manifest.permission.BLUETOOTH_SCAN,
-            Manifest.permission.BLUETOOTH_CONNECT
-        ))
+        takePermissions.launch(
+            arrayOf(
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_CONNECT
+            )
+        )
 
         // Register for broadcasts when a device is discovered.
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
