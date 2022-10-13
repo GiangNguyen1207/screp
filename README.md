@@ -43,7 +43,7 @@ Placeholder for demo screen recording
 
 📸 Take photos during your walk
 
-🖼️ View your photos in app gallery grouped by location and sorted by date
+🖼️ View your photos in app gallery grouped by location
 
 📲 Connect to bluetooth and share your photos via different options
 
