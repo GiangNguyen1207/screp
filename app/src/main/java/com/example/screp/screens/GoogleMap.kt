@@ -105,7 +105,7 @@ fun GoogleMap(
 
     //set currentLocation as google map cameraPosition
     cameraPositionState.position = CameraPosition.fromLatLngZoom(
-        photoAndMapViewModel.getPosition(currentLocation), 13f
+        photoAndMapViewModel.getPosition(currentLocation), 15f
     )
 
     var trackingButtonClickingState by remember { mutableStateOf(true) }
@@ -174,7 +174,8 @@ private fun MyGoogleMap(
             if (routeList != null) {
                 Polyline(
                     points = routeList.value,
-                    jointType = JointType.ROUND
+                    jointType = JointType.ROUND,
+                    color = Color.Blue
                 )
             }
         } else {
@@ -187,7 +188,8 @@ private fun MyGoogleMap(
                 if (routeList != null) {
                     Polyline(
                         points = routeList.value.minus(routeListOld.value),
-                        jointType = JointType.ROUND
+                        jointType = JointType.ROUND,
+                        color = Color.Blue
                     )
                 }
             }
@@ -195,7 +197,6 @@ private fun MyGoogleMap(
         //add marker to every photo location
         photos?.value?.forEach {
             val photoName = it.photoName
-            Log.i("aaaaaa", "map photo name: ${photoName}")
             Marker(
                 onClick = {
                     false

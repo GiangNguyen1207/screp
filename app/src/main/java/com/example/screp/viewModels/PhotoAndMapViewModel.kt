@@ -99,14 +99,16 @@ class PhotoAndMapViewModel(application: Application) : AndroidViewModel(applicat
             var address = ""
             val time: Long = SimpleDateFormat("yyyyMMdd").format(Date()).toLong()
             val geocoder = Geocoder(context)
-            if (Build.VERSION.SDK_INT >= 33) {
-                geocoder.getFromLocation(lat, lng, 1)
-            } else {
+            try {
                 address = geocoder.getFromLocation(lat, lng, 1)?.first()?.getAddressLine(0) ?: ""
+            } catch (e: Exception) {
+                Log.i("aaaaaa", "Exception ${e}")
             }
-            val cityName =
-                address.split(",").toMutableList().get(1).split(" ").toMutableList()
-                    .lastOrNull()
+            var cityName = "Unknown city"
+            if (address != ""){
+                cityName = address.split(",").toMutableList().get(1).split(" ").toMutableList()
+                    .lastOrNull().toString()
+            }
             val photo = cityName?.let {
                 Photo(
                     uid = 0,
