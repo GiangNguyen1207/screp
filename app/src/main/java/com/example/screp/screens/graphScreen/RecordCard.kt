@@ -32,20 +32,20 @@ fun RecordCard(time: String, stepCount: String) {
             ){
                 Text(
                     stringResource(R.string.recordcard_title),
-                    color = MaterialTheme.colors.primaryVariant,
+                    color = MaterialTheme.colors.secondary,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     time,
-                    color = MaterialTheme.colors.secondary.copy(alpha = 0.5f),
+                    color = MaterialTheme.colors.primary.copy(alpha = 0.7f),
                     fontSize = 16.sp,
                 )
             }
 
             Text(
                 stepCount,
-                color = MaterialTheme.colors.secondary,
+                color = MaterialTheme.colors.primary,
                 fontSize = 40.sp,
                 fontWeight = FontWeight.Bold
             )
