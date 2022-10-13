@@ -74,7 +74,6 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround,
         modifier = Modifier
             .fillMaxSize()
             .background(
@@ -148,13 +147,19 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colors.onPrimary,
         )
+
+        if (stepCounts.value.isEmpty()) Text(
+            text = stringResource(R.string.no_activity),
+            color = MaterialTheme.colors.onPrimary,
+            modifier = Modifier.padding(top = 10.dp)
+        )
+
         LazyColumn {
             items(stepCounts.value.sortedByDescending { it.startTime }) {
                 val timeString = CalendarUtil().formatTimeForRecordCard(it.startTime, it.endTime)
                 RecordCard(time = timeString, stepCount = it.total.toString())
             }
         }
-
     }
 }
 

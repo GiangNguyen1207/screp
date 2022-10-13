@@ -2,7 +2,9 @@ package com.example.screp.screens.settingsScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme
@@ -30,7 +32,7 @@ fun SettingScreen(navController: NavHostController, settings: Flow<Settings>) {
     val notification = stringResource(R.string.label_notification)
     val savedSettings = settings.collectAsState(initial = Settings())
 
-    Column {
+    Column(Modifier.verticalScroll(rememberScrollState())) {
         SettingsHeader()
         Row(
             modifier = Modifier
