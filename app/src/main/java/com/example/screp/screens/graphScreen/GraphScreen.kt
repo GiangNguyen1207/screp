@@ -127,7 +127,6 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .padding(16.dp)
-                .size(LocalConfiguration.current.screenHeightDp.dp / 3)
         ) {
             if (selectedOption == "Day") {
                 CircularProgressBar(
@@ -146,6 +145,7 @@ fun GraphScreen(stepCountViewModel: StepCountViewModel, settings: Flow<Settings>
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colors.onPrimary,
+            modifier = Modifier.padding(bottom = 10.dp)
         )
 
         if (stepCounts.value.isEmpty()) Text(
@@ -169,7 +169,7 @@ fun CircularProgressBar(
     percentage: Float,
     number: Int,
     fontSize: TextUnit = 25.sp,
-    radius: Dp = 125.dp,
+    radius: Dp = LocalConfiguration.current.screenHeightDp.dp / 6,
     color: Color = MaterialTheme.colors.onSecondary,
     strokeWidth: Dp = 15.dp,
     animDuration: Int = 1000,

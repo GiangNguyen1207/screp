@@ -17,24 +17,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddAPhoto
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.MyLocation
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
-import com.example.screp.R
 import com.example.screp.services.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavItem
 import com.example.screp.data.Photo
@@ -140,7 +137,8 @@ fun PhotosScreen(
                             text = cityName,
                             fontSize = 20.sp,
                             color = MaterialTheme.colors.primary,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(10.dp)
                         )
                         Spacer(Modifier.height(10.0.dp))
                         LazyRow {
@@ -160,9 +158,9 @@ fun PhotosScreen(
                                                 navController.navigate(BottomNavItem.PhotoDetail.screen_route + "/${it.photoName}")
                                             }
                                         )
-                                        .size(100.dp)
+                                        .size(LocalConfiguration.current.screenHeightDp.dp / 4)
+                                        .padding(3.dp)
                                 )
-                                Spacer(Modifier.width(5.0.dp))
                             }
                         }
                         Spacer(Modifier.height(20.0.dp))
