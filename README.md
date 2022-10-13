@@ -70,7 +70,7 @@ Click to play video
 - [x] Follow material design guidelines recommendation
 - [x] Use all of the 4 required basic components: activity, broadcast receiver, service, content provider
 - [x] Use Compose
-- [x] Implement Persistence (Room and File and Data )
+- [x] Implement Persistence (Room and File and Data Store)
 - [x] Implement Connection to [Open weather API](https://api.openweathermap.org/data/2.5/weather?) web service
 - [x] Implement Step count sensor
 - [x] Implement Bluetooth communication: using classic Bluetooth to find and pair smart phone devices, establish connection to transfer file
