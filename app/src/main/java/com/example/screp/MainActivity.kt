@@ -1,13 +1,13 @@
 package com.example.screp
 
 import android.Manifest
+import android.content.Context
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothServerSocket
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -17,6 +17,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -33,21 +34,23 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
+import androidx.work.*
 import com.example.screp.services.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavigation
 import com.example.screp.bottomNavigation.NavigationGraph
 import com.example.screp.data.Settings
-import com.example.screp.services.NotificationManager
+import com.example.screp.helpers.CalendarUtil
 import com.example.screp.services.SensorDataManager
-import com.example.screp.services.bluetoothService.MY_UUID
 import com.example.screp.ui.theme.ScrepTheme
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import com.example.screp.viewModels.StepCountViewModel
 import com.example.screp.viewModels.WeatherViewModel
+import com.example.screp.workManager.FetchWeatherDataWorker
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -66,8 +69,7 @@ class MainActivity : ComponentActivity() {
 
     lateinit var takePermissions: ActivityResultLauncher<Array<String>>
     lateinit var takeResultLauncher: ActivityResultLauncher<Intent>
-
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         dataManager = SensorDataManager(this)
@@ -83,7 +85,7 @@ class MainActivity : ComponentActivity() {
         getBluetoothPermission()
 
         stepCountViewModel = StepCountViewModel(application)
-        weatherViewModel = WeatherViewModel()
+        weatherViewModel = WeatherViewModel(application)
         photoAndMapViewModel = PhotoAndMapViewModel(application)
 
 
@@ -110,7 +112,19 @@ class MainActivity : ComponentActivity() {
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val notificationTime =
                         settings.collectAsState(initial = Settings()).value.notificationTime
-                    NotificationManager(context, notificationTime).setScheduledNotification()
+                    val workManager = WorkManager.getInstance(context)
+                    val constraints = Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                    val fetchWeatherDataRequest =
+                        OneTimeWorkRequestBuilder<FetchWeatherDataWorker>()
+                            .setConstraints(constraints)
+                            .setInitialDelay(
+                                calculateTimeForWorkManager(notificationTime),
+                                TimeUnit.MILLISECONDS
+                            )
+                            .build()
+                    workManager.enqueue(fetchWeatherDataRequest)
 
 
                     Scaffold(
@@ -142,6 +156,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun calculateTimeForWorkManager(notificationTime: String): Long {
+        val notificationTimeInLong = CalendarUtil().getDateTime(notificationTime)
+        val currentTime = CalendarUtil().getCurrentTime()
+        val timeDifference = notificationTimeInLong - currentTime
+
+        if (timeDifference > 0) return timeDifference
+        return notificationTimeInLong + 86400000 - currentTime
+    }
+
     private fun hasLocationPermissions(): Boolean {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d("aaaaaa", "No gps access")
@@ -160,6 +183,7 @@ class MainActivity : ComponentActivity() {
             requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1)
         }
     }
+
 
     fun getBluetoothPermission(){
         // Get BT permissions
@@ -210,5 +234,4 @@ class MainActivity : ComponentActivity() {
         unregisterReceiver(bluetoothServiceManager.receiver)
         bluetoothServiceManager.stopTimerJob()
     }
-
 }

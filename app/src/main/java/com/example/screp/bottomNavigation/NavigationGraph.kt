@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.screp.services.bluetoothService.BluetoothServiceManager
 import com.example.screp.data.Settings
+import com.example.screp.data.Weather
 import com.example.screp.screens.PhotosScreen
 import com.example.screp.screens.weatherScreen.WeatherScreen
 import com.example.screp.viewModels.StepCountViewModel
@@ -53,7 +54,7 @@ fun NavigationGraph(
             GraphScreen(stepCountViewModel = stepCountViewModel, settings = settings)
         }
         composable(BottomNavItem.Weather.screen_route) {
-            WeatherScreen(weatherViewModel, photoAndMapViewModel, fusedLocationProviderClient)
+            WeatherScreen(weatherViewModel)
         }
         composable(BottomNavItem.Photos.screen_route) {
             PhotosScreen(
