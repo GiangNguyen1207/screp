@@ -11,16 +11,23 @@ A step-counter with add-ins weather forecast and picture sharing function.
 Sensor-based Android Application Development group project at Metropolia UAS - Autumn 2022.
 
 <br  />
+<p  align="center">
 
 <img src="https://user-images.githubusercontent.com/51530194/195667250-34f6943e-e8d4-480e-ab26-615a713907ab.png" width=200 />
+</p>
 
-
-### Walking is now getting better and more fun with Screp App
-
+### Have a walk, enjoy the weather and capture memorable moments with Screp App
+Screenshots from the app
 <p  align="row">
+<img  src= "https://user-images.githubusercontent.com/51530194/195669141-7874f98c-74b0-49cf-acb3-6cc9f15e6a4d.png"  width="200" />
+<img width="200" alt="ảnh" src="https://user-images.githubusercontent.com/51530194/195669421-4e1b9adf-1686-4f89-b258-514d23cfa343.png">
+<img width="200" alt="ảnh" src="https://user-images.githubusercontent.com/51530194/195672388-d297f060-4cd4-4c81-a992-4aac45562d57.png">
+<img width="200" alt="ảnh" src="https://user-images.githubusercontent.com/51530194/195669529-730a72ed-703f-412e-8ed3-78bb6235879e.png">
+<img width="200" alt="ảnh" src="https://user-images.githubusercontent.com/51530194/195669716-56d81932-8ef7-4bfe-9a8d-5815f23806c5.png">
+<img width="200" alt="ảnh" src="https://user-images.githubusercontent.com/51530194/195669815-3157f66d-05ea-46eb-99eb-fd73eb7a9e26.png">
+<img width="200" alt="ảnh" src="https://user-images.githubusercontent.com/51530194/195671490-89d9a4a2-624d-4eb2-aee5-8068fd1965ba.png">
+<img width="200" src="https://user-images.githubusercontent.com/51530194/195670873-e19f7794-7ad7-4d4b-b35f-b4f3c9517945.jpg">
 
-Placeholder for demo screen recording
-<img  src= ""  width="300"  >
 
 </p>
 
@@ -44,7 +51,11 @@ Placeholder for demo screen recording
 
 📈 View graph and summary of walking records
 
-📸 Take photos during your walk
+⛅ Have a weather forecast service ready for you
+
+🔔 Subscribe to weather notification service at a chosen time
+
+📸 Take photos during your walk and have them pinned on the map
 
 🖼️ View your photos in app gallery grouped by location
 
