@@ -35,9 +35,9 @@ Screenshots from the app
 
 ### Demo recording with full features
 
-<p> place holder link 
+<p>
 
- [![demo recording](http://img.youtube.com/vi/fS2B3cMipnM/0.jpg)](https://youtu.be/fS2B3cMipnM)
+ [![demo recording](http://img.youtube.com/vi/rxM8AzkIMa8/0.jpg)](https://youtu.be/rxM8AzkIMa8)
   
 </p>
 
