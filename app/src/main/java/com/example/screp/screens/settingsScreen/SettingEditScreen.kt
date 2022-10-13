@@ -1,13 +1,6 @@
 package com.example.screp.screens.settingsScreen
 
-import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.app.TimePickerDialog
-import android.content.Context
-import android.content.Intent
-import android.os.Build
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,8 +22,6 @@ import com.example.screp.R
 import com.example.screp.bottomNavigation.BottomNavItem
 import com.example.screp.data.Settings
 import com.example.screp.helpers.CalendarUtil
-import com.example.screp.services.NotificationManager
-import com.example.screp.services.NotificationService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
@@ -54,7 +45,6 @@ fun SettingEditScreen(
     val savedSettings = settings.collectAsState(initial = Settings())
     var totalStepsGoal by remember { mutableStateOf("") }
     var notificationTime by remember { mutableStateOf("") }
-    val notificationManager = NotificationManager(context, savedSettings.value.notificationTime)
 
     val timePickerDialog = TimePickerDialog(
         context,
@@ -137,7 +127,6 @@ fun SettingEditScreen(
                         coroutineScope.launch {
                             saveToDataStore()
                         }
-                        notificationManager.setScheduledNotification()
                         navController.navigate(BottomNavItem.Settings.screen_route)
                     }) {
                     Text(text = save, color = MaterialTheme.colors.onPrimary)
