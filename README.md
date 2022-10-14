@@ -100,6 +100,24 @@ cd Screp
 ```
 
 - [Open the project on Android studio](https://developer.android.com/studio/projects/create-project#ImportAProject)
+ 
+- Retrieve API Key from two sources:
+ 
+  - API key for open weather can be generated at [Open Weather API](https://home.openweathermap.org/api_keys)
+Once you sign up using your email, the API key (APPID) will be sent to you in a confirmation email. Your API keys can always be found on [your account page](https://home.openweathermap.org/api_keys), where you can also generate additional API keys if needed.
+  - API Key for Google Map API: [Follow the instruction on the official Google Map API Guide](https://developers.google.com/maps/documentation/android-sdk/get-api-key)
+  - Store the API Keys in the `local.properties` file in the Gradle Scripts folder (under the app root)
+ 
+    <img width="150" alt="ảnh" src="https://user-images.githubusercontent.com/51530194/195905605-bda1d54c-f592-4a30-9eef-9bee0046cada.png">
+
+    Add the API keys with the following variable names to the `local.properties` file:
+    ```
+    API_KEY=<YOUR_OpenWeather_APIKey>
+    MAPS_API_KEY=<YOUR_GoogleMaps_APIKey>
+    ```
+- Build and run the app in Android Studio following [this instruction](https://developer.android.com/studio/run).
+
+Google Map API
 
 
 ## Run project
