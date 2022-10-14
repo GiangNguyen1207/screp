@@ -1,6 +1,5 @@
 package com.example.screp.helpers
 
-import android.util.Log
 import kotlin.math.ceil
 
 class Converter {

@@ -113,11 +113,13 @@ In case of running issue: Navigate to top menu in Android Studio: `File > Invali
 - [Stack Overflow](https://stackoverflow.com/)
 - [Medium](https://medium.com/)
 - [Android Developer guide](https://developer.android.com/guide)
+- [Youtube](https://www.youtube.com/)
 
 ## Dependencies
 - [Google Map API](https://developers.google.com/maps/documentation/android-sdk/overview)
 - [Coil](https://coil-kt.github.io/coil/)
 - [Retrofit](https://github.com/square/retrofit)
+- [Moshi](https://github.com/square/moshi)
 - [Compose Compiler](https://github.com/androidx/androidx/blob/androidx-main/compose/compiler)
 - [Compose Runtime](https://github.com/androidx/androidx/blob/androidx-main/compose/runtime)
 - [Core](https://github.com/androidx/androidx/blob/androidx-main/core)
@@ -126,6 +128,7 @@ In case of running issue: Navigate to top menu in Android Studio: `File > Invali
 - [Navigation](https://github.com/androidx/androidx/blob/androidx-main/navigation)
 - [Room](https://github.com/androidx/androidx/blob/androidx-main/room)
 - [WorkManager](https://github.com/androidx/androidx/blob/androidx-main/work)
+- [Material Icons](https://fonts.google.com/icons?icon.set=Material+Icons)
 
 
 ## Contributors
