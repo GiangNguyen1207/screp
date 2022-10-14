@@ -8,8 +8,7 @@ import com.example.screp.helpers.CalendarUtil
 import com.example.screp.helpers.Converter
 
 @Composable
-fun CurrentWeather(weatherData: Weather) {
-    val currentCity = weatherData.timezone.split("/")[1]
+fun CurrentWeather(weatherData: Weather, currentLocation: String) {
     val icon = weatherData.current.weather[0].icon
 
     val sunriseTime =
@@ -24,7 +23,7 @@ fun CurrentWeather(weatherData: Weather) {
     }
 
     WeatherCard(
-        title = currentCity,
+        title = currentLocation,
         index = "${Converter().roundingTemperature(weatherData.current.temp)}\u2103",
         image = "http://openweathermap.org/img/wn/$icon@2x.png",
         description = weatherDescription,

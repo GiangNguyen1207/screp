@@ -1,9 +1,58 @@
 package com.example.screp.helpers
 
+import android.util.Log
+import androidx.compose.ui.text.buildAnnotatedString
+import java.text.SimpleDateFormat
 import java.util.*
 
 class CalendarUtil {
     private val calendar = Calendar.getInstance()
+
+    //get the current time and store as Long
+    fun getCurrentTime(): Long {
+        return calendar.time.time
+    }
+
+    // get today's date as string
+    fun getTodayDate(): String {
+        val currentDate = getCurrentTime()
+        return SimpleDateFormat("yyyy-MM-dd").format(currentDate)
+    }
+
+
+    // get calculated date by time delta:
+    fun getCalculatedDate(dateFormat: String = "yyyy-MM-dd", days: Int): String? {
+        val cal = Calendar.getInstance()
+        val format = SimpleDateFormat(dateFormat)
+        cal.add(Calendar.DAY_OF_YEAR, days)
+        return format.format(cal.timeInMillis)
+    }
+
+
+    // Format time value as Long to formatted date and time string
+    fun convertLongToTime(format: String = "yyyy.MM.dd HH:mm", time: Long): String {
+        val date = Date(time)
+        val format = SimpleDateFormat(format)
+        return format.format(date)
+    }
+
+    // Format time for record card
+    fun formatTimeForRecordCard(startTime: Long, endTime: Long): String{
+        var dateString = "${convertLongToTime(time=startTime)} - ${convertLongToTime(time=endTime)}"
+        val startTimeDateString = convertLongToTime("yyyy.MM.dd", startTime)
+        val endTimeDateString = convertLongToTime("yyyy.MM.dd", endTime)
+        if (startTimeDateString == endTimeDateString){
+            dateString = buildAnnotatedString {
+                append(startTimeDateString)
+                append("\n")
+                append(convertLongToTime("HH:mm", startTime))
+                append(" - ")
+                append(convertLongToTime("HH:mm", endTime))
+            }.toString()
+        }
+        return dateString
+    }
+
 
     //get the beginning of a given date
     fun getCurrentDateStart(givenDate: String? = null): Long {
@@ -53,5 +102,23 @@ class CalendarUtil {
         return if (hasMinute)
             "${calendar.get(Calendar.HOUR_OF_DAY)}.${calendar.get(Calendar.MINUTE)}"
         else "${calendar.get(Calendar.HOUR_OF_DAY)}"
+    }
+
+    fun getCurrentHour(): Int {
+        return calendar.get(Calendar.HOUR_OF_DAY)
+    }
+
+    fun getCurrentMinute(): Int {
+        return calendar.get(Calendar.MINUTE)
+    }
+
+    //receive time in string, ex "5:00", "18:05"
+    //return a Long Date Time
+    fun getDateTime(time: String): Long {
+        val timeArr = time.split(":")
+        calendar.set(Calendar.HOUR_OF_DAY, timeArr[0].toInt());
+        calendar.set(Calendar.MINUTE, timeArr[1].toInt());
+
+        return calendar.time.time;
     }
 }

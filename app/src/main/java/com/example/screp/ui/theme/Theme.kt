@@ -14,9 +14,8 @@ private val DarkColorPalette = darkColors(
     secondary = Secondary,
     background = Background,
     onPrimary = NavBarIcon,
-    onSecondary = NavBarChosenIcon
-
-
+    onSecondary = NavBarChosenIcon,
+    onBackground = GreyColor
 )
 
 private val LightColorPalette = lightColors(
@@ -25,7 +24,8 @@ private val LightColorPalette = lightColors(
     secondary = Secondary,
     background = Background,
     onPrimary = NavBarIcon,
-    onSecondary = NavBarChosenIcon
+    onSecondary = NavBarChosenIcon,
+    onBackground = GreyColor
 
     /* Other default colors to override
     background = Color.White,
