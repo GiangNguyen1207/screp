@@ -1,7 +1,6 @@
 package com.example.screp.workManager
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -13,7 +12,6 @@ import com.example.screp.R
 import com.example.screp.data.HourlyWeather
 import com.example.screp.helpers.CalendarUtil
 import com.example.screp.repository.WeatherRepository
-import com.example.screp.viewModels.WeatherViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
@@ -33,12 +31,11 @@ class FetchWeatherDataWorker(
 
     private val weatherRepository: WeatherRepository = WeatherRepository()
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private val weatherViewModel: WeatherViewModel = WeatherViewModel(context.applicationContext as Application)
 
     @SuppressLint("MissingPermission")
     override suspend fun doWork(): Result {
-        var latitude = 0.0
-        var longitude = 0.0
+        var latitude = 60.224219553595276
+        var longitude = 24.758666262648816
 
         return try {
             fusedLocationProviderClient =
@@ -53,8 +50,9 @@ class FetchWeatherDataWorker(
             val currentTime = CalendarUtil().getCurrentTime()
             val currentDateEnd = CalendarUtil().getCurrentDateEnd()
             val weatherData = weatherRepository.fetchWeatherData(latitude, longitude)
+
             val todayWeatherData =
-                weatherData.hourly.filter { hourlyWeather -> hourlyWeather.dt in currentTime..currentDateEnd }
+                weatherData.hourly.filter { hourlyWeather -> hourlyWeather.dt * 1000L in currentTime..currentDateEnd }
 
             sortWeatherCondition(todayWeatherData)
             notifyWeatherCondition()
@@ -97,7 +95,7 @@ class FetchWeatherDataWorker(
         if (weatherTimeGroup.isEmpty()) return ""
 
         for (i in 1 until weatherTimeGroup.size + 1) {
-            if (i == weatherTimeGroup.size || (weatherTimeGroup[i] - weatherTimeGroup[i - 1] != 3600L)) {
+            if (i == weatherTimeGroup.size || (weatherTimeGroup[i].toInt() - weatherTimeGroup[i - 1].toInt() != 3600)) {
                 if (count == 1) {
                     result.add(calendar.getTime(weatherTimeGroup[i - count] * 1000L))
                 } else {
