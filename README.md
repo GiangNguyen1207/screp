@@ -39,8 +39,8 @@ Click to play video
 
 <p>
 
- [![demo recording](http://img.youtube.com/vi/O5mf_JnLATI/0.jpg)](https://youtu.be/O5mf_JnLATI)
-</p>
+ [![demo recording](http://img.youtube.com/vi/MdR7DuJ_PTc/0.jpg)](https://youtu.be/MdR7DuJ_PTc)
+ 
 
 ## Features
 
