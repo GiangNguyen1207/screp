@@ -18,17 +18,13 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
@@ -37,6 +33,7 @@ import com.example.screp.BuildConfig
 import com.example.screp.R
 import com.example.screp.services.bluetoothService.BluetoothServiceManager
 import com.example.screp.bottomNavigation.BottomNavItem
+import com.example.screp.helpers.Converter
 import com.example.screp.viewModels.PhotoAndMapViewModel
 import java.io.BufferedInputStream
 import java.io.File
@@ -67,10 +64,6 @@ fun PhotoDetailScreen(
         type = "image/*"
     }
     val shareIntent = Intent.createChooser(sendIntent, null)
-    val date = photo?.value?.time.toString()
-    val year = date.substring(0, 4)
-    val month = date.substring(0, 2)
-    val day = date.substring(0, 2)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -107,7 +100,7 @@ fun PhotoDetailScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "Date: $year.$month.$day",
+                "Date: ${Converter().convertDateFormat(photo?.value?.time)}",
                 color = MaterialTheme.colors.primary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
