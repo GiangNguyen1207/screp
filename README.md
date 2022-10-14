@@ -25,7 +25,7 @@ Screenshots from the app
 <img width="200" alt="ảnh" src="https://user-images.githubusercontent.com/51530194/195669529-730a72ed-703f-412e-8ed3-78bb6235879e.png">
 <img width="200" alt="ảnh" src="https://user-images.githubusercontent.com/51530194/195669716-56d81932-8ef7-4bfe-9a8d-5815f23806c5.png">
 <img width="200" alt="ảnh" src="https://user-images.githubusercontent.com/51530194/195669815-3157f66d-05ea-46eb-99eb-fd73eb7a9e26.png">
-<img width="200" alt="ảnh" src="https://user-images.githubusercontent.com/51530194/195671490-89d9a4a2-624d-4eb2-aee5-8068fd1965ba.png">
+<img width="200" alt="ảnh" src="https://user-images.githubusercontent.com/51530194/195805224-93deb477-e832-4132-9e67-3477a1eb23c8.png">
 <img width="200" src="https://user-images.githubusercontent.com/51530194/195670873-e19f7794-7ad7-4d4b-b35f-b4f3c9517945.jpg">
 
 
